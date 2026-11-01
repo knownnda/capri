@@ -384,6 +384,27 @@ Run the tests with `python tests/test_mc_vision.py` (or `python -m pytest tests`
 - **Voices:** only clone voices you have permission to use. (Brittany Lauda does NOT give permission to clone their voice SO DONT!!) 
 - **Power commands:** "power off" and "reset my PC" really shut down or restart Windows after the flatline animation. Save your work first. "show the flatline screen" only shows it.
 
+---
+
+## Credits
+
+Capri is built on some great open-source projects. Huge thanks to their creators:
+
+| Project | Used for |
+|---|---|
+| [SpotAPI](https://github.com/Aran404/SpotAPI) by [Aran404](https://github.com/Aran404) | Spotify auto-play without a developer account |
+| [TikTokLive](https://github.com/isaackogan/TikTokLive) by [isaackogan](https://github.com/isaackogan) | Reading TikTok LIVE chat in stream mode |
+| [Ollama](https://github.com/ollama/ollama) | Running her AI brain locally |
+| [faster-whisper](https://github.com/SYSTRAN/faster-whisper) | Local speech recognition |
+| [Piper](https://github.com/rhasspy/piper) | Her local spoken voice |
+| [Voicebox](https://github.com/jamiepine/voicebox) by [jamiepine](https://github.com/jamiepine) | Cloned-voice support |
+| [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Finding YouTube videos |
+| [Spotipy](https://github.com/spotipy-dev/spotipy) | Official Spotify Web API option |
+| [PySide6 / Qt](https://doc.qt.io/qtforpython-6/) | Her desktop windows |
+| [Inno Setup](https://jrsoftware.org/isinfo.php) | The Windows installer |
+
+---
+
 ## License
 
 No license has been chosen yet, so all rights are reserved by the author until one is added. (To let others use and modify it, add a `LICENSE` file, for example MIT.)
