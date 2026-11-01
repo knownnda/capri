@@ -380,8 +380,7 @@ Run the tests with `python tests/test_mc_vision.py` (or `python -m pytest tests`
 - **Secrets are git-ignored:** `spotapi_session.json` (your Spotify cookie), `spotify.json`, `.spotify_cache`, `providers.json` and `voice_api.json` (API keys) and `.env`. Never commit them, and never post them in an issue.
 - **Unofficial APIs:** SpotAPI (Spotify's private web API) and TikTokLive are unofficial and may break, or may go against those services' terms. Use them on your own accounts at your own risk.
 - **Automation:** keyboard and mouse automation runs only on your machine. The Minecraft autopilot only acts while Minecraft is the active window, and F8 always stops it. Don't use automation in online games where it's against the rules.
-- **Voices:** only clone voices you have permission to use.
-- **Assets:** the GIFs, images and sounds in `static/` are used with the author's permission. If you fork this project, make sure you have the rights to any assets you publish. `lore/scene.mp3` isn't included.
+- **Voices:** only clone voices you have permission to use. (Brittany Lauda does NOT give permission to clone their voice SO DONT!!) 
 - **Power commands:** "power off" and "reset my PC" really shut down or restart Windows after the flatline animation. Save your work first. "show the flatline screen" only shows it.
 
 ## License
