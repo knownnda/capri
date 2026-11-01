@@ -56,7 +56,6 @@ she plays your music, puts on shows, researches anything, writes your homework i
 | **Voice + chat** | "Hey Capri" wake word, hands-free calls, typed chat. Local speech recognition (faster-whisper). 16 languages: the installer's language is the language she speaks. |
 | **Her voice** | **Capri beeps** by default (an RPG-style blip for every letter), or **Piper**, **Voicebox** (your own cloned voice) or an **API voice** (OpenAI / ElevenLabs). |
 | **Minecraft autopilot** | No mods. She reads the F3 screen and scans colours, then plays with your keyboard and mouse: chop wood, mine, find ores, explore, fight, eat, build. |
-| **Stream mode** | TikTok LIVE: chat votes on what she does next (`!wood`, `!diamonds`...), she answers chat in character, OBS scene included. |
 | **PC control** | Open apps, search, type where you're looking, edit files (with undo), timers that call you back, memory, clips of the last 30 seconds. |
 | **API keys menu** | Paste an OpenAI / Groq / OpenRouter / Claude / ElevenLabs key in the menu to use a cloud brain or voice. Keys never leave your PC. |
 | **Flatline screen** | "show the flatline screen", "power off my PC" or "reset my PC" plays a Cyberpunk flatline sequence. |
