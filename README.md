@@ -3,7 +3,9 @@
   <a href="#features">Features</a> ·
   <a href="#things-to-say">Things to say</a> ·
   <a href="#troubleshooting">Troubleshooting</a> ·
-  <a href="#limitations">Limitations</a>
+  <a href="#limitations">Limitations</a> .
+  <a href="docs/HOW_IT_WORKS.md">How it works</a>
+</p>
 </p>
 
 <h1 align="center">Capri</h1>
