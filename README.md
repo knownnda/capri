@@ -6,7 +6,6 @@
   <a href="#limitations">Limitations</a> .
   <a href="docs/HOW_IT_WORKS.md">How it works</a>
 </p>
-</p>
 
 <h1 align="center">Capri</h1>
 
