@@ -365,7 +365,7 @@ Run the tests with `python tests/test_mc_vision.py` (or `python -m pytest tests`
 - **A small local brain.** The default `llama3.2:3b` is fast but not as clever as big cloud AIs: she can misunderstand unusual requests. Add a cloud key in **API KEYS** for a smarter brain.
 - **Speed depends on your PC.** Without a GPU, replies and essays take longer. The first reply after starting is the slowest.
 - **Commands work best in English.** Other languages go through the AI brain, which is slower and less exact.
-- **Unofficial services can break.** SpotAPI (Spotify) and TikTokLive aren't official APIs; when those sites change, auto-play or stream chat can stop working until they're updated.
+- **Unofficial services can break.** SpotAPI (Spotify) isn't an official API; when those sites change, auto-play or stream chat can stop working until they're updated.
 - **She clicks what she sees.** Pressing PLAY in the Riot Client and the Minecraft autopilot read the screen. They need the window visible and can fail if a launcher changes its layout or shows a pop-up (log in, update, Vanguard restart).
 - **Minecraft autopilot is basic.** She plays by eye, is slower and clumsier than a person, doesn't craft and won't beat the game. Single-player or your own server only.
 - **Roblox** needs the Roblox Player installed and signed in. **Google Docs** needs you signed in to Google in your default browser.
