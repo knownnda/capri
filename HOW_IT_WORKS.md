@@ -5,6 +5,8 @@
   <a href="#her-web-pages-static">Web pages</a> ·
   <a href="#data-files-she-creates">Data files</a> ·
   <a href="#design-decisions">Design decisions</a>
+    <a href="#limitations">Limitations</a> ·
+  <a href="docs/HOW_IT_WORKS.md">How it works</a>
 </p>
 
 <h1 align="center">How Capri works</h1>
