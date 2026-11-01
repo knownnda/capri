@@ -407,4 +407,6 @@ Capri is built on some great open-source projects. Huge thanks to their creators
 
 ## License
 
-No license has been chosen yet, so all rights are reserved by the author until one is added. (To let others use and modify it, add a `LICENSE` file, for example MIT.)
+Capri is released under the [MIT License](LICENSE), so you're free to use, modify and share it. Just keep the copyright notice.
+
+Third-party projects she uses (see [Credits](#credits)) keep their own licences.
