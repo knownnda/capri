@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CAPRI MATE</title>
+<style>
+@font-face{font-family:"Rajdhani";font-weight:500;src:url("fonts/rajdhani-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Rajdhani";font-weight:700;src:url("fonts/rajdhani-latin-700-normal.woff2") format("woff2")}
+:root{--pink:#ff2a6d;--green:#3dff9a;--cyan:#19f0ff;--yellow:#f2d44a;--ui:"Rajdhani","Bahnschrift","Segoe UI Semibold",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+html,body{cursor:default;width:300px;height:500px;background:transparent;overflow:hidden;user-select:none;font-family:var(--ui);font-weight:500}
+#stage{position:absolute;left:30px;top:150px;width:240px;height:340px;cursor:pointer}
+#stage svg{width:240px;height:340px;overflow:visible}
+#callbtn{position:absolute;left:222px;top:300px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(5,28,14,.82);cursor:pointer;
+  box-shadow:0 0 0 2px var(--green),0 0 14px rgba(61,255,154,.7);display:flex;align-items:center;justify-content:center;opacity:.8;transition:opacity .15s,transform .15s}
+#callbtn:hover{opacity:1;transform:scale(1.12)}
+#callbtn svg{width:22px;height:22px;fill:var(--green)}
+#callbtn.on{box-shadow:0 0 0 2px #ff4a52,0 0 14px rgba(255,74,82,.8)}#callbtn.on svg{fill:#ff4a52}
+/* speech bubble (same look as the chat bubble in the demo) */
+#bubble{position:absolute;left:14px;right:14px;bottom:356px;display:none;filter:drop-shadow(0 0 8px rgba(25,240,255,.45))}
+#bubble.show{display:block}
+.b-out{background:var(--cyan);padding:2px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 22px),calc(100% - 44px) calc(100% - 22px),calc(100% - 56px) 100%,calc(100% - 68px) calc(100% - 22px),0 calc(100% - 22px))}
+.b-in{background:#0b0f16;padding:8px 12px 28px;border-left:3px solid var(--pink);clip-path:polygon(0 0,calc(100% - 11px) 0,100% 11px,100% 100%,0 100%);color:#e8fdff;font-size:16px;line-height:1.15}
+.who{display:block;color:var(--yellow);font-weight:700;letter-spacing:.14em;font-size:12px;margin-bottom:2px}
+#btext{white-space:pre-wrap;word-break:break-word}
+#bmenu{display:none;flex-direction:column;gap:5px;margin-top:7px}
+#bmenu.on{display:flex}
+#bmenu button{font:inherit;font-weight:700;letter-spacing:.1em;font-size:14px;text-align:left;cursor:pointer;color:#c9d2ff;background:rgba(80,70,200,.28);border:1px solid #6e63ff;padding:3px 9px;
+  clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,0 100%)}
+#bmenu button:hover{background:#6e63ff;color:#fff}
+#fx{position:absolute;inset:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="bubble"><div class="b-out"><div class="b-in"><span class="who">CAPRI &gt;</span><div id="btext"></div>
+  <div id="bmenu"><button data-a="call">&#9742; CALL CAPRI</button><button data-a="tp">TELEPORT</button><button data-a="hide">HIDE</button></div></div></div></div>
+
+<div id="stage">
+  <svg id="rig" viewBox="0 0 240 340" aria-label="Capri">
+    <defs><clipPath id="hairclip"><polygon id="hairclipPoly"/></clipPath></defs>
+    <g id="root">
+      <g id="ledge" opacity="0"><rect x="20" y="202" width="200" height="3" fill="#19f0ff" opacity=".0"/></g>
+      <g id="hair"></g>
+      <g id="legL"></g><g id="legR"></g>
+      <g id="body"></g>
+      <g id="armL"></g>
+      <g id="head"></g>
+      <g id="armR"></g>
+      <g id="phone" opacity="0"></g>
+    </g>
+  </svg>
+  <button id="callbtn" title="call Capri"><svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/></svg></button>
+</div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg", $ = s => document.querySelector(s);
+const PINK = "#ff2a6d", PINKD = "#a8123f", GREEN = "#3dff9a", BLACK = "#0b0614", VIOLET = "#8b3dff", BLUE = "#2a63ff";
+function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+const pts = a => a.map(p => p.join(",")).join(" ");
+
+/* ================= build Capri ================= */
+// hair: big spiky pink mass with glitter, darker shards and a violet outline (like the art)
+const HAIR = [[120,2],[140,28],[170,6],[168,40],[205,24],[190,62],[226,72],[192,92],[214,130],[176,114],[180,152],[146,124],[132,162],[120,128],[104,164],[92,124],[62,152],[66,112],[26,130],[48,90],[14,74],[50,62],[30,28],[70,42],[72,8],[96,30]];
+const hair = $("#hair");
+el("polygon", {points: pts(HAIR.map(p => [p[0]+3, p[1]+3])), fill: "none", stroke: VIOLET, "stroke-width": 3, "stroke-linejoin": "round", opacity: .8}, hair);
+el("polygon", {points: pts(HAIR), fill: PINK}, hair);
+$("#hairclipPoly").setAttribute("points", pts(HAIR));
+const hg = el("g", {"clip-path": "url(#hairclip)"}, hair);
+[[[60,60],[96,40],[88,98]],[[150,40],[196,52],[170,100]],[[40,110],[84,96],[70,140]],[[150,110],[200,118],[172,146]],[[110,120],[130,150],[96,150]]]
+  .forEach(t => el("polygon", {points: pts(t), fill: PINKD, opacity: .75}, hg));
+[[[96,22],[112,6],[118,40]],[[176,60],[214,70],[184,84]]].forEach(t => el("polygon", {points: pts(t), fill: "#5a0d3a", opacity: .7}, hg));
+const sparks = [];
+for (let i = 0; i < 90; i++){ const c = el("circle", {cx: 14 + Math.random()*212, cy: 2 + Math.random()*160, r: (.5 + Math.random()*1.3).toFixed(2), fill: "#fff", opacity: (.3 + Math.random()*.7).toFixed(2)}, hg); sparks.push(c); }
+
+// face: green rectangle, two blue eyes, white zig-zag grin, black spikes
+const head = $("#head"), hf = el("g", {id: "headrot"}, head);
+el("polygon", {points: "112,98 128,98 126,110 114,110", fill: BLACK}, hf);                                             // neck
+el("polygon", {points: pts([[92,60],[100,36],[110,56],[118,26],[128,54],[142,32],[148,58],[156,48],[150,86],[96,88]]), fill: BLACK}, hf);   // black spikes
+const face = el("g", {transform: "translate(120 78) rotate(-5)"}, hf);
+el("rect", {x: -23, y: -17, width: 46, height: 33, fill: GREEN, stroke: BLACK, "stroke-width": 2}, face);
+const eyes = el("g", {}, face);
+[-10.5, 10.5].forEach(x => { el("circle", {cx: x, cy: -3, r: 8, fill: "#0a1650", stroke: BLUE, "stroke-width": 2}, eyes); el("circle", {cx: x, cy: -3, r: 4.6, fill: BLUE}, eyes); el("circle", {cx: x + 1, cy: -4, r: 2, fill: "#fff"}, eyes); });
+el("polygon", {points: pts([[-15,9],[-9,15],[-3,9],[3,15],[9,9],[15,13],[13,19],[0,22],[-13,19]]), fill: "#fff", stroke: BLACK, "stroke-width": 1.4, "stroke-linejoin": "round"}, face);
+el("polyline", {points: "-6,-14 -2,-17 2,-13 6,-16", fill: "none", stroke: "#fff", "stroke-width": 1, opacity: .8}, face);
+
+// torso / hips
+const body = $("#body");
+el("polygon", {points: pts([[98,106],[142,106],[137,150],[132,176],[108,176],[103,150]]), fill: BLACK}, body);
+el("polygon", {points: pts([[104,116],[118,126],[110,140],[128,134],[136,118],[122,122]]), fill: PINK, opacity: .9}, body);
+el("polygon", {points: pts([[110,150],[130,146],[126,166],[114,166]]), fill: GREEN}, body);
+el("polygon", {points: pts([[105,172],[135,172],[140,204],[100,204]]), fill: BLACK}, body);
+el("polygon", {points: pts([[100,204],[112,192],[122,204]]), fill: GREEN}, body);
+el("polygon", {points: pts([[126,176],[138,184],[132,198]]), fill: PINK}, body);
+
+// limbs: stroke paths we re-shape every frame
+function mkLimb(parent, segs){ return segs.map(s => ({o: el("path", {fill: "none", stroke: "#1a0720", "stroke-width": s.w + 3, "stroke-linecap": "round", "stroke-linejoin": "round"}, parent),
+                                                   p: el("path", {fill: "none", stroke: s.c, "stroke-width": s.w, "stroke-linecap": "round", "stroke-linejoin": "round"}, parent)})); }
+const limbs = {
+  armL: mkLimb($("#armL"), [{c: PINK, w: 7}, {c: PINK, w: 6}]), armR: mkLimb($("#armR"), [{c: PINK, w: 7}, {c: PINK, w: 6}]),
+  legL: mkLimb($("#legL"), [{c: PINK, w: 10}, {c: BLACK, w: 8}]), legR: mkLimb($("#legR"), [{c: PINK, w: 10}, {c: BLACK, w: 8}]),
+};
+const hands = {L: el("circle", {r: 5.2, fill: BLACK, stroke: "#1a0720", "stroke-width": 1}, $("#armL")), R: el("circle", {r: 5.2, fill: BLACK, stroke: "#1a0720", "stroke-width": 1}, $("#armR"))};
+const feet = {L: el("polygon", {fill: BLACK, stroke: "#1a0720", "stroke-width": 1}, $("#legL")), R: el("polygon", {fill: BLACK, stroke: "#1a0720", "stroke-width": 1}, $("#legR"))};
+
+// phone
+const ph = $("#phone");
+const phoneG = el("g", {}, ph);
+el("rect", {x: -7, y: -13, width: 14, height: 26, rx: 3, fill: "#0b0f16", stroke: "#8b95ff", "stroke-width": 1.4}, phoneG);
+const screen = el("rect", {x: -5, y: -10, width: 10, height: 18, rx: 1.5, fill: GREEN}, phoneG);
+el("circle", {cx: 0, cy: 10.5, r: 1.1, fill: "#8b95ff"}, phoneG);
+
+/* ================= poses ================= */
+const SH_L = [102,110], SH_R = [138,110], HIP_L = [113,198], HIP_R = [127,198];
+const POSES = {
+  stand: {aL: [[93,142],[92,172]],  aR: [[147,142],[148,172]], lL: [[111,252],[109,302]], lR: [[129,252],[133,302]], tilt: 0, phone: null, anchor: 304},
+  sit:   {aL: [[90,150],[88,200]],  aR: [[150,150],[152,200]], lL: [[103,238],[100,284]], lR: [[137,238],[141,284]], tilt: 0, phone: null, anchor: 204},
+  wave:  {aL: [[93,142],[92,172]],  aR: [[160,84],[166,52]],    lL: [[111,252],[109,302]], lR: [[129,252],[133,302]], tilt: 4, phone: null, anchor: 304},
+  point: {aL: [[93,142],[92,172]],  aR: [[172,104],[210,98]],   lL: [[111,252],[109,302]], lR: [[129,252],[133,302]], tilt: -3, phone: null, anchor: 304},
+  phone_out: {aL: [[96,142],[114,152]], aR: [[146,142],[128,152]], lL: null, lR: null, tilt: 7, phone: {x: 121, y: 146, r: 0, s: 1}},
+  phone_ear: {aL: [[96,142],[112,152]], aR: [[163,124],[147,84]],  lL: null, lR: null, tilt: 6, phone: {x: 146, y: 78, r: 14, s: 1}},
+};
+let pose = "sit", perch = "sit", call = "idle";
+const cur = {}; function snap(name){ const p = POSES[name === "sit" || perch === "sit" ? "sit" : "stand"]; return p; }
+function legsFor(name){ const base = POSES[perch === "sit" ? "sit" : "stand"]; return {lL: POSES[name].lL || base.lL, lR: POSES[name].lR || base.lR}; }
+function targetPose(){
+  const p = POSES[pose], L = legsFor(pose);
+  return {aL: p.aL, aR: p.aR, lL: L.lL, lR: L.lR, tilt: p.tilt, phone: p.phone};
+}
+let J = JSON.parse(JSON.stringify(targetPose()));
+function lerp(a, b, t){ return a + (b - a) * t; }
+function stepJ(t, k){
+  ["aL","aR","lL","lR"].forEach(key => t[key].forEach((pt, i) => { J[key][i][0] = lerp(J[key][i][0], pt[0], k); J[key][i][1] = lerp(J[key][i][1], pt[1], k); }));
+  J.tilt = lerp(J.tilt, t.tilt, k);
+  if (t.phone){ if (!J.phone) J.phone = {...t.phone}; for (const q of ["x","y","r","s"]) J.phone[q] = lerp(J.phone[q], t.phone[q], k); }
+}
+const d2 = (a, b, c) => `M${a[0].toFixed(1)},${a[1].toFixed(1)} L${b[0].toFixed(1)},${b[1].toFixed(1)}` + (c ? ` L${c[0].toFixed(1)},${c[1].toFixed(1)}` : "");
+/* Windows hides/re-shows the mouse cursor every time a see-through window repaints under it, so a 60 fps animation
+   makes the cursor flicker when it's over her. Fix: hold still while the mouse is on her, and draw at ~24 fps otherwise. */
+let hovering = false, lastFrame = 0;
+window.capriStill = on => { hovering = !!on; };          // Capri's Python side tells us when the mouse is inside this window
+function render(time){
+  const calm = call === "idle" || call === "connected";
+  if ((hovering && calm) || time - lastFrame < 41) { requestAnimationFrame(render); return; }
+  lastFrame = time;
+  const t = targetPose(), s = time / 1000;
+  stepJ(t, .16);
+  const sitting = perch === "sit";
+  const bob = Math.sin(s * 1.6) * 1.6, sw = Math.sin(s * 2.1);
+  // swing legs when sitting & not on the phone
+  const swing = sitting ? sw * 7 : 0;
+  const wv = pose === "wave" ? Math.sin(s * 9) * 7 : 0;
+  const aL = [SH_L, J.aL[0], J.aL[1]], aR = [SH_R, [J.aR[0][0] + wv * .3, J.aR[0][1]], [J.aR[1][0] + wv, J.aR[1][1]]];
+  limbs.armL.forEach(l => { l.o.setAttribute("d", d2(...aL)); l.p.setAttribute("d", d2(...aL)); });
+  limbs.armR.forEach(l => { l.o.setAttribute("d", d2(...aR)); l.p.setAttribute("d", d2(...aR)); });
+  hands.L.setAttribute("cx", aL[2][0]); hands.L.setAttribute("cy", aL[2][1]); hands.R.setAttribute("cx", aR[2][0]); hands.R.setAttribute("cy", aR[2][1]);
+  const lL = [HIP_L, J.lL[0], [J.lL[1][0] + swing, J.lL[1][1]]], lR = [HIP_R, J.lR[0], [J.lR[1][0] - swing, J.lR[1][1]]];
+  [[limbs.legL, lL, feet.L], [limbs.legR, lR, feet.R]].forEach(([lm, pts3, ft]) => {
+    lm[0].o.setAttribute("d", d2(pts3[0], pts3[1])); lm[0].p.setAttribute("d", d2(pts3[0], pts3[1]));
+    lm[1].o.setAttribute("d", d2(pts3[1], pts3[2])); lm[1].p.setAttribute("d", d2(pts3[1], pts3[2]));
+    const f = pts3[2]; ft.setAttribute("points", `${f[0]-6},${f[1]-3} ${f[0]+7},${f[1]-3} ${f[0]+11},${f[1]+6} ${f[0]-8},${f[1]+6}`);
+  });
+  $("#root").setAttribute("transform", `translate(0 ${bob.toFixed(2)})`);
+  $("#headrot").setAttribute("transform", `rotate(${(J.tilt + Math.sin(s * .9) * 1.2).toFixed(2)} 120 90)`);
+  $("#hair").setAttribute("transform", `rotate(${(Math.sin(s * 1.1) * 1.4).toFixed(2)} 120 100)`);
+  // phone
+  const ph = J.phone, on = t.phone ? 1 : 0;
+  $("#phone").setAttribute("opacity", on ? 1 : 0);
+  if (ph){
+    const shake = (call === "incoming" || call === "ringing") && pose === "phone_out" ? Math.sin(s * 45) * 1.6 : 0;
+    phoneG.setAttribute("transform", `translate(${(ph.x + shake).toFixed(1)} ${ph.y.toFixed(1)}) rotate(${ph.r.toFixed(1)})`);
+    screen.setAttribute("fill", call === "incoming" ? "#ff4a52" : GREEN);
+    screen.setAttribute("opacity", call === "connected" ? .55 : (.65 + .35 * Math.sin(s * 10)));
+  }
+  // blink + sparkle
+  const blink = (Math.floor(s * 10) % 37 === 0) ? .12 : 1;
+  eyes.setAttribute("transform", `translate(0 ${(-3 * (1 - blink)).toFixed(1)}) scale(1 ${blink})`);
+  if (Math.floor(s * 8) !== render.lastSp){ render.lastSp = Math.floor(s * 8); for (let i = 0; i < 10; i++) sparks[(Math.random() * sparks.length) | 0].setAttribute("opacity", (Math.random()).toFixed(2)); }
+  requestAnimationFrame(render);
+}
+
+/* ================= glitch teleport ================= */
+const stage = $("#stage");
+function glitchFx(dur, inward, done){
+  const t0 = performance.now();
+  (function step(now){
+    const p = Math.min(1, (now - t0) / dur), k = inward ? 1 - p : p;     // k: 0 = solid .. 1 = gone
+    if (p >= 1){ stage.style.clipPath = ""; stage.style.filter = ""; stage.style.opacity = inward ? 1 : 0; stage.style.transform = ""; done && done(); return; }
+    const a = Math.random() * 70, b = a + 8 + Math.random() * 30 * (0.3 + k);
+    stage.style.clipPath = Math.random() < .7 ? `inset(${a.toFixed(0)}% 0 ${(100 - b).toFixed(0)}% 0)` : "";
+    stage.style.transform = `translate(${((Math.random() - .5) * 26 * (0.2 + k)).toFixed(0)}px,0) skewX(${((Math.random() - .5) * 14 * k).toFixed(1)}deg)`;
+    stage.style.filter = `drop-shadow(${(4 * k + 1).toFixed(0)}px 0 #ff2a6d) drop-shadow(${(-4 * k - 1).toFixed(0)}px 0 #19f0ff)` + (Math.random() < .3 ? " hue-rotate(80deg)" : "");
+    stage.style.opacity = (Math.random() < .25 + .5 * (1 - k) ? 1 : (.15 + (1 - k) * .5)).toFixed(2);
+    requestAnimationFrame(step);
+  })(t0);
+}
+
+/* ================= bubble + api for the Python side ================= */
+let bubbleT, menuOpen = false;
+function say(text, ms, menu){
+  clearTimeout(bubbleT); $("#btext").textContent = text; $("#bmenu").classList.toggle("on", !!menu); menuOpen = !!menu;
+  $("#bubble").classList.add("show"); reportMask();
+  if (ms) bubbleT = setTimeout(hideBubble, ms);
+}
+function hideBubble(){ $("#bubble").classList.remove("show"); menuOpen = false; reportMask(); }
+function setPose(p){ pose = p; }
+function refreshPose(){
+  if (call === "ringing" || call === "incoming") pose = "phone_out";
+  else if (call === "connected") pose = "phone_ear";
+  else if (pose === "phone_out" || pose === "phone_ear") pose = perch === "sit" ? "sit" : "stand";
+  else if (pose === "sit" || pose === "stand") pose = perch === "sit" ? "sit" : "stand";
+}
+window.mate = {
+  teleportOut(cb){ glitchFx(380, false, cb); },
+  teleportIn(cb){ stage.style.opacity = 0; glitchFx(420, true, cb); },
+  setPerch(kind){ perch = kind === "sit" ? "sit" : "stand"; refreshPose(); },
+  setCall(phase){
+    call = phase; refreshPose();
+    $("#callbtn").classList.toggle("on", phase !== "idle");
+    if (phase === "ringing") say("Dialing...", 2500);
+    if (phase === "incoming") say("Phone's buzzing, choom!", 0);
+    if (phase === "connected") hideBubble();
+    if (phase === "idle") { setTimeout(() => say("Later, choom.", 2200), 200); }
+  },
+  say, hide: hideBubble, wave(){ if (call === "idle"){ const old = pose; pose = "wave"; setTimeout(() => { pose = old; refreshPose(); }, 1800); } },
+  point(){ if (call === "idle"){ const old = pose; pose = "point"; setTimeout(() => { pose = old; refreshPose(); }, 2200); } },
+  boot(){ this.teleportIn(() => { say("hi", 2600); this.wave(); }); },
+};
+
+/* ================= interaction ================= */
+function post(path, body){ return fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})}).catch(() => {}); }
+$("#callbtn").addEventListener("click", e => { e.stopPropagation(); post("/api/mate/call"); });
+stage.addEventListener("click", e => { if (e.target.closest("#callbtn")) return; if (call !== "idle") return; menuOpen ? hideBubble() : say("What should I do, choom?", 9000, true); });
+$("#bmenu").addEventListener("click", e => {
+  const a = e.target.dataset.a; if (!a) return; hideBubble();
+  if (a === "call") post("/api/mate/call"); else if (a === "tp") post("/api/mate/teleport"); else if (a === "hide") post("/api/mate/hide");
+});
+// the clickable area (everything else is click-through): hair, body, call button, bubble
+let lastMask = "";
+function reportMask(){
+  const R = [[44, 150, 212, 168], [30 + 84, 150 + 160, 72, 150], [30 + 222, 150 + 300, 40, 40]];   // hair, body+legs, call button
+  if ($("#bubble").classList.contains("show")){ const b = $("#bubble").getBoundingClientRect(); R.push([Math.floor(b.left), Math.floor(b.top), Math.ceil(b.width), Math.ceil(b.height)]); }
+  const m = JSON.stringify(R); if (m !== lastMask){ lastMask = m; post("/api/mate/mask", {rects: R}); }
+}
+
+// little idle chatter so she feels alive
+const QUIPS = ["Bored, choom.", "Stare all you want.", "Say 'Hey Capri' and I'm all yours.", "Nice windows. Shame if someone sat on them.", "Tick tock, delta.", "Hah-hah! Gotcha looking."];
+setInterval(() => { if (call === "idle" && !menuOpen && Math.random() < .35) { say(QUIPS[(Math.random() * QUIPS.length) | 0], 3800); if (Math.random() < .5) mate.wave(); } }, 45000);
+
+requestAnimationFrame(render);
+reportMask();
+post("/api/mate/ready");
+</script>
+</body>
+</html>

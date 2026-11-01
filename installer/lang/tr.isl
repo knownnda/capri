@@ -1,0 +1,31 @@
+﻿; Capri setup strings (tr)
+[CustomMessages]
+TypeCustom=Neyin kurulacağını seç
+CompCore=Capri (gerekli)
+CompBrain=Yapay zekâ beyni: Ollama + yerel bir yapay zekâ modeli (yaklaşık 2 GB indirme)
+CompEars=Kulaklar: konuşma tanıma modeli (yaklaşık 500 MB)
+CompVoice=Ses: senin dilinde konuşan bir ses (yaklaşık 60 MB)
+CompMinecraft=Minecraft otopilotu: Java Edition'ı senin yerine oynar
+CompSpotify=Spotify otomatik oynatma kurulumu (web oynatıcıdan tek bir çerez yapıştır)
+TaskStartup=Capri'yi Windows ile birlikte sistem tepsisinde gizli başlat ('Hey Capri'yi dinler)
+IconMate=Masaüstünde Capri (desktop mate)
+IconCheck=Capri hazırlık kontrolü
+IconRepair=Capri'nin parçalarını onar - yeniden indir
+StPython=Python kuruluyor...
+StOllama=Ollama kuruluyor (Capri'nin beyni)...
+StSetup=Capri hazırlanıyor: indirmeler siyah pencerede görünür. Bu biraz sürebilir, choom...
+RunMinecraft=Minecraft otopilotunu şimdi kur
+RunSpotify=Spotify'ı şimdi bağla
+WelcomeLang=Capri bu kurulum için seçtiğin dilde konuşacak ve dinleyecek. Sonra değiştirebilirsin: Capri'ye sağ tıkla > LANGUAGE.
+DownloadDesc=Capri'nin ihtiyaç duydukları indiriliyor...
+DownloadFailed=İnternet bağlantını kontrol et ve tekrar dene.
+PiTitle=CAPRI // KURULUM
+PiApp=Capri indiriliyor
+PiPackages=Python paketleri kuruluyor
+PiBrain=Yapay zekâ beyni indiriliyor
+PiEars=Kulakları indiriliyor (konuşma tanıma)
+PiVoice=Sesi indiriliyor
+PiOk=TAMAM
+PiFailed=BAŞARISIZ (ayrıntılar install_log.txt dosyasında)
+PiDone=Capri hazır. 'Hey Capri' de.
+PiClose=Bu pencereyi kapatmak için Enter'a bas.

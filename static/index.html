@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAPRI</title>
+<style>
+@font-face{font-family:"Rajdhani";font-weight:400;src:url("fonts/rajdhani-latin-400-normal.woff2") format("woff2");font-display:block}
+@font-face{font-family:"Rajdhani";font-weight:500;src:url("fonts/rajdhani-latin-500-normal.woff2") format("woff2");font-display:block}
+@font-face{font-family:"Rajdhani";font-weight:600;src:url("fonts/rajdhani-latin-600-normal.woff2") format("woff2");font-display:block}
+@font-face{font-family:"Rajdhani";font-weight:700;src:url("fonts/rajdhani-latin-700-normal.woff2") format("woff2");font-display:block}
+:root{
+  --pink:#ff2a6d; --yellow:#f2d44a; --green:#5cf08a; --teal:#5de6d6; --amber:#f0b13a; --red:#ff4a52;
+  --ui:"Rajdhani","Bahnschrift","Segoe UI Semibold",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:transparent;color:#d9fbff;font-family:var(--ui);font-weight:500;font-size:17px;overflow:hidden;user-select:none}
+#root{position:fixed;left:0;right:0;bottom:0;display:flex;flex-direction:row;justify-content:flex-end;align-items:flex-end;gap:14px;padding:14px;text-shadow:0 0 6px #000}
+.view{display:none;flex-direction:column;gap:12px}
+.view.on{display:flex}
+
+/* ---------- glitch ---------- */
+.glitch{animation:slice var(--gd,.4s) steps(1,end)}
+@keyframes slice{
+  0%{clip-path:inset(0 0 88% 0);transform:translate(-10px,0);filter:drop-shadow(4px 0 var(--pink)) drop-shadow(-4px 0 var(--teal))}
+  10%{clip-path:inset(45% 0 30% 0);transform:translate(12px,0);filter:hue-rotate(80deg) drop-shadow(-5px 0 var(--pink))}
+  20%{clip-path:inset(10% 0 70% 0);transform:translate(-6px,2px)}
+  30%{clip-path:inset(0);transform:translate(5px,-2px) skewX(8deg);filter:drop-shadow(5px 0 var(--teal)) drop-shadow(-5px 0 var(--pink))}
+  40%{clip-path:inset(60% 0 12% 0);transform:translate(-14px,0)}
+  50%{clip-path:inset(0);transform:none;filter:none;opacity:.35}
+  60%{clip-path:inset(25% 0 50% 0);transform:translate(9px,0);opacity:1;filter:hue-rotate(-60deg)}
+  75%{clip-path:inset(0);transform:translate(-3px,0) skewX(-5deg);filter:drop-shadow(3px 0 var(--pink))}
+  90%{clip-path:inset(0);transform:none;filter:none}
+  100%{clip-path:inset(0);transform:none;filter:none;opacity:1}
+}
+
+/* ---------- the Edgerunners CALL box ---------- */
+.cbox{position:relative;flex:none;width:56px;height:56px;background:var(--cb);box-shadow:0 0 14px var(--cg);
+  transform:skew(-2deg) rotate(-.7deg);clip-path:polygon(1.5% 0,100% 2%,98.5% 100%,0 97.5%);animation:flick 3.6s steps(1,end) infinite}
+.cbox::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);pointer-events:none}
+.cbox .arc{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border:3px solid transparent;border-left-color:var(--ca);border-right-color:var(--ca);border-radius:50%}
+.cbox b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;letter-spacing:.02em;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.cbox i{position:absolute;left:6px;bottom:4px;width:55%;height:2px;background:rgba(255,255,255,.45)}
+.cbox.red{--cb:#bf2229;--cg:rgba(255,60,70,.55);--ca:#ff7a7f}
+.cbox.green{--cb:#27a244;--cg:rgba(60,255,120,.5);--ca:#92ffab}
+@keyframes flick{0%,90%,100%{transform:skew(-2deg) rotate(-.7deg)}91%{transform:translate(3px,0) skew(5deg);filter:drop-shadow(-3px 0 var(--teal))}93%{transform:translate(-4px,1px) skew(-6deg);filter:hue-rotate(40deg)}95%{transform:skew(-2deg) rotate(-.7deg);opacity:.5}97%{opacity:1;transform:translate(2px,0)}}
+
+/* ---------- subtitles (name + call box + text) ---------- */
+#chat{display:none;flex-direction:column;gap:10px}
+#chat.show{display:flex}
+.line{display:flex;gap:12px;align-items:flex-start}
+.line.me{flex-direction:row-reverse}
+.who{display:flex;flex-direction:column;gap:3px;flex:none}
+.line.me .who{align-items:flex-end}
+.nm{color:var(--teal);font-weight:600;font-size:17px;letter-spacing:.02em}
+.txt{flex:1;min-width:0;padding-top:20px;line-height:1.18;font-size:17px;word-break:break-word;white-space:pre-wrap}
+.line.her .txt{color:var(--teal)}
+.line.me .txt{color:var(--amber);text-align:right}
+#bActs div{color:#6fae9e;font-size:14px;font-weight:500;word-break:break-word}
+#bActs div.bad{color:var(--pink)}
+/* TEXT BACKGROUND (right-click > SYSTEM): a solid black panel behind her text so it's readable on any wallpaper */
+body.textbg #chat.show{background:rgba(0,0,0,.88);padding:10px 12px;border-left:2px solid var(--teal);box-shadow:0 0 0 1px rgba(93,230,214,.18)}
+body.textbg #callSub:not(:empty),body.textbg #wakeStat:not(:empty){background:rgba(0,0,0,.88);padding:6px 10px}
+body.textbg #modechip{background:#000}
+
+/* ---------- framed gif ---------- */
+
+/* ---------- input row ---------- */
+#frame{--fc:#3dff9a;--fcg:#3dff9a55;position:relative;height:200px;border:2px solid var(--fc);background:#000;box-shadow:0 0 14px var(--fcg);transition:border-color .15s}
+#frame img{width:100%;height:100%;object-fit:cover;display:block;image-rendering:auto}
+#frame.rew img{visibility:hidden}
+#noise{position:absolute;inset:0;width:100%;height:100%;display:none;image-rendering:pixelated;background:#000}
+#frame.rew #noise{display:block}
+#frameTop{position:absolute;top:-13px;left:14px;display:flex;align-items:center;gap:8px;z-index:3}
+#frameLabel{background:#06080a;border:1px solid var(--fc);color:var(--fc);padding:1px 9px;font-weight:600;font-size:14px;letter-spacing:.14em}
+#vbars{display:none;align-items:center;gap:2px;height:16px;background:#06080a;padding:0 4px;border:1px solid #19b8ff55}
+#vbars.on{display:flex}
+#vbars i{display:block;width:3px;height:4px;background:#19b8ff;box-shadow:0 0 6px #19b8ff;transition:height .08s}
+.c{position:absolute;width:14px;height:14px;border:0 solid var(--fc)}
+.c.bl{left:-4px;bottom:-4px;border-width:0 0 4px 4px}.c.br{right:-4px;bottom:-4px;border-width:0 4px 4px 0}
+.c.tr{right:-4px;top:-4px;border-width:4px 4px 0 0}.c.tl{left:-4px;top:-4px;border-width:4px 0 0 4px}
+#inrow{display:flex;gap:8px;align-items:stretch}
+#bar{flex:1;background:#d2a93c;padding:1px;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+#in{display:block;width:100%;background:#1a1507;border:0;color:#ffe9a0;padding:7px 12px;font:inherit;font-weight:500;outline:none;user-select:text;
+  clip-path:polygon(0 0,calc(100% - 9.4px) 0,100% 9.4px,100% 100%,0 100%)}
+#in::placeholder{color:#b4994a;opacity:1}
+#mic{flex:none;width:42px;background:#d2a93c;padding:1px;border:0;cursor:pointer;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+#mic span{display:flex;height:100%;align-items:center;justify-content:center;background:#1a1507;color:#ffe9a0;font:inherit;font-weight:700;font-size:18px;clip-path:polygon(0 0,calc(100% - 7.4px) 0,100% 7.4px,100% 100%,0 100%)}
+#mic:hover span,#mic:focus-visible span{background:#d2a93c;color:#000}
+#mic.rec span{background:var(--pink);color:#000}
+#mic img{width:28px;height:28px;object-fit:contain;display:block}
+#mic.live span{box-shadow:inset 0 0 0 2px var(--green),0 0 calc(var(--lvl,0) * 16px) var(--green)}
+#mic.muted span{opacity:.4}
+@keyframes live{50%{box-shadow:inset 0 0 0 2px var(--green),0 0 14px var(--green)}}
+#callbar{display:flex;justify-content:center}
+#hangup{width:30%;background:var(--red);padding:1px;border:0;cursor:pointer;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))}
+#hangup span{display:flex;justify-content:center;align-items:center;padding:5px;background:rgba(30,5,8,.92);clip-path:polygon(0 0,calc(100% - 8.4px) 0,100% 8.4px,100% 100%,8.4px 100%,0 calc(100% - 8.4px))}
+#hangup img{height:34px;width:auto;display:block}
+#hangup:hover span,#hangup:focus-visible span{background:var(--red)}
+#hangup:hover img,#hangup:focus-visible img{filter:brightness(0)}
+#callopen{width:62%;background:var(--green);padding:1px;border:0;cursor:pointer;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))}
+#callopen span{display:flex;justify-content:center;gap:10px;align-items:center;padding:4px 10px;background:rgba(5,22,12,.9);color:var(--green);font:inherit;font-weight:700;font-size:16px;letter-spacing:.2em;
+  clip-path:polygon(0 0,calc(100% - 8.4px) 0,100% 8.4px,100% 100%,8.4px 100%,0 calc(100% - 8.4px))}
+#callopen:hover span,#callopen:focus-visible span{background:var(--green);color:#000}
+kbd{font:inherit;font-weight:700;font-size:13px;line-height:1;min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid currentColor;border-radius:3px;background:rgba(5,20,12,.75)}
+
+/* ---------- call screen (star + CALL button) ---------- */
+#callview{align-items:center;gap:8px}
+#orb{display:flex;flex-direction:column;align-items:center;gap:6px}
+#capriPic{width:170px;height:auto;display:block;filter:drop-shadow(0 0 14px rgba(92,240,138,.45));transition:transform .08s linear}
+#orb svg{width:130px;height:130px;overflow:visible;filter:drop-shadow(0 0 14px rgba(92,240,138,.45))}
+#orb.fast svg{filter:drop-shadow(0 0 20px rgba(255,42,109,.8))}
+#orb .pulse{transform-origin:100px 100px;animation:pulse 3s ease-in-out infinite}
+#orb.fast .pulse{animation-duration:.8s}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{transform:scale(1.1)}}
+#orbLabel{background:#06120d;border:1px solid var(--green);color:#d8ffe6;font-weight:600;font-size:14px;letter-spacing:.16em;padding:2px 12px}
+#callSub{min-height:44px;max-width:360px;text-align:center;color:var(--teal);line-height:1.2;font-size:17px;white-space:pre-wrap}
+#callhud{display:none;align-items:center;gap:12px;color:#4dff7a;filter:drop-shadow(0 0 8px rgba(77,255,122,.55));cursor:pointer;margin-top:2px;animation:flick 3.2s steps(1,end) infinite}
+#callhud.on{display:flex}
+.hphone{width:40px;height:68px;flex:none}
+.hcard{width:32px;height:74px;flex:none;animation:hfloat 2.4s ease-in-out infinite}
+@keyframes hfloat{50%{transform:translateY(-3px)}}
+.hcall{font-size:20px;font-weight:500;letter-spacing:.05em;line-height:1;margin-bottom:3px}
+.hbar{padding:1.5px;background:currentColor;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
+.hin{display:flex;align-items:center;gap:10px;padding:2px 22px 2px 0;background:rgba(3,20,9,.88);clip-path:polygon(0 0,100% 0,100% calc(100% - 10.6px),calc(100% - 10.6px) 100%,0 100%)}
+.hedge{align-self:stretch;width:8px;border-right:1.5px solid currentColor;background:rgba(77,255,122,.35)}
+.hset{width:30px;height:30px;transform-origin:30% 70%;animation:hring 1.6s ease-in-out infinite}
+.harc{animation:harc .8s steps(2,end) infinite}
+@keyframes hring{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(-14deg)}20%,40%{transform:rotate(14deg)}}
+@keyframes harc{50%{opacity:.25}}
+.hname{font-weight:700;font-size:27px;color:#8bffa8;letter-spacing:.02em;min-width:88px}
+.hmicro{font-size:8px;letter-spacing:.22em;opacity:.7;margin-top:3px}
+#callBtn{width:46%;margin-top:6px;background:var(--green);padding:2px;border:0;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+#callBtn span{display:block;padding:5px 8px;background:rgba(5,22,12,.92);color:var(--green);font:inherit;font-weight:700;font-size:17px;letter-spacing:.22em;text-align:center;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+#callBtn:hover span{background:rgba(92,240,138,.22)}
+#callBtn.active span{background:var(--green);color:#041208}
+#callBtn.active.red{background:var(--red)}
+#callBtn.active.red span{background:var(--red);color:#fff}
+#callBack{color:var(--green)}
+#wakeStat{max-width:380px;text-align:center;font-size:12px;letter-spacing:.06em;color:#6fae9e;line-height:1.25;min-height:16px;word-break:break-word}
+#wakeStat b{color:var(--green);font-weight:600}
+#wakeStat i{color:#c9fff0;font-style:normal}
+#wakeStat .bad{color:var(--pink)}
+
+/* ---------- incoming call ---------- */
+#incoming{gap:10px}
+#incLabel{text-align:center;font-weight:700;font-size:15px;letter-spacing:.2em;color:#ff9aa0;text-shadow:0 0 8px rgba(255,74,82,.7)}
+#inchud{display:flex;align-items:center;justify-content:center;gap:12px;color:#ff4a52;filter:drop-shadow(0 0 9px rgba(255,74,82,.65));cursor:pointer;animation:flick 3.2s steps(1,end) infinite}
+#inchud .hin{background:rgba(30,4,7,.9)}
+#inchud .hedge{background:rgba(255,74,82,.35)}
+#inchud .hname{color:#ffb8bc}
+#inchud:hover{filter:drop-shadow(0 0 14px rgba(255,74,82,.95))}
+#incBar{display:flex;align-items:center;gap:14px;padding:12px 16px;border:2px solid var(--red);background:rgba(40,5,8,.7);
+  box-shadow:0 0 18px rgba(255,60,70,.45),inset 0 0 18px rgba(255,60,70,.15);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+#incText{font-weight:700;font-size:28px;letter-spacing:.14em;color:#ffd9db;text-shadow:0 0 10px var(--red)}
+#incSub{font-size:14px;color:#ff9aa0;letter-spacing:.1em;font-weight:600}
+#incBtns{display:flex;gap:12px}
+#incBtns button{flex:1;padding:2px;border:0;cursor:pointer;background:var(--c);clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))}
+#incBtns button span{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 6px;background:rgba(5,10,8,.92);color:var(--c);font:inherit;font-weight:700;font-size:18px;letter-spacing:.16em;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+#incBtns button:hover span,#incBtns button:focus-visible span{background:var(--c);color:#000}
+#incYes{--c:var(--green)}#incNo{--c:var(--red)}
+#incBtns{justify-content:center}#incBtns button{flex:0 1 150px}
+#incBar.ring{animation:ringpulse 1s ease-in-out infinite}
+
+/* ---------- extra cyberpunk polish ---------- */
+#col{display:flex;flex-direction:column;gap:12px;width:392px;flex:none}
+#modechip{align-self:flex-end;display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;letter-spacing:.2em;color:#6fae9e;padding:1px 10px 1px 8px;background:rgba(3,12,10,.78);
+  border:1px solid rgba(93,230,214,.45);clip-path:polygon(0 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%);text-shadow:none;cursor:pointer}
+#modechip b{color:var(--yellow);font-weight:700}
+#modechip i{width:7px;height:7px;background:#6fae9e;display:inline-block;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+#modechip.on i{background:var(--green);box-shadow:0 0 6px var(--green)}
+#frame::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px),linear-gradient(180deg,transparent 0,rgba(255,255,255,.07) 48%,transparent 52%);
+  background-size:100% 100%,100% 220%;animation:sweep 5s linear infinite}
+@keyframes sweep{from{background-position:0 0,0 -120%}to{background-position:0 0,0 120%}}
+#frame .tag{position:absolute;right:8px;bottom:5px;font-size:10px;letter-spacing:.22em;color:var(--fc);opacity:.85;text-shadow:0 0 6px #000;z-index:3;font-weight:700}
+#bar{position:relative}
+#bar .pr{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#d2a93c;font-weight:700;font-size:15px;letter-spacing:.05em;z-index:2;pointer-events:none}
+#in{padding-left:38px}
+#bar:focus-within{filter:drop-shadow(0 0 7px rgba(242,212,74,.55))}
+#hangup:hover,#mic:hover,#callBtn:hover{filter:drop-shadow(2px 0 0 rgba(255,42,109,.7)) drop-shadow(-2px 0 0 rgba(25,240,255,.7))}
+#bReply{max-height:340px;overflow-y:auto;padding-right:6px;user-select:text}
+#bReply::-webkit-scrollbar{width:5px}#bReply::-webkit-scrollbar-thumb{background:var(--teal);box-shadow:0 0 6px var(--teal)}#bReply::-webkit-scrollbar-track{background:rgba(93,230,214,.12)}
+.line.her .txt{border-left:2px solid rgba(93,230,214,.45);padding-left:10px;margin-left:-4px}
+.line.me .txt{border-right:2px solid rgba(240,177,58,.5);padding-right:10px;margin-right:-4px}
+
+/* ---------- config menu (right-click Capri) ---------- */
+
+
+/* ---------- config menu: styled like the Cyberpunk 2077 main menu (red glass tiles, cyan hex icons) ---------- */
+#cfg{display:none;flex-direction:column;gap:6px;width:326px;flex:none;padding:10px 10px 12px;background:rgba(14,3,5,.88);border:1px solid rgba(200,60,60,.5);
+  box-shadow:0 0 18px rgba(200,40,40,.28),inset 0 0 30px rgba(120,10,15,.25);text-shadow:none;max-height:calc(100vh - 28px);overflow-y:auto;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+#cfg.on{display:flex}
+#cfg::-webkit-scrollbar{width:4px}#cfg::-webkit-scrollbar-thumb{background:#c33}
+.cm-head{display:flex;align-items:baseline;gap:8px;padding:0 2px 6px;border-bottom:1px solid rgba(255,90,90,.35);color:#ff7a7a;font-weight:700;letter-spacing:.22em;font-size:15px}
+.cm-head small{color:#5de6d6;font-size:11px;letter-spacing:.2em;font-weight:600;margin-left:auto}
+.cm-item{display:flex;align-items:center;gap:11px;padding:5px 10px 5px 10px;background:rgba(48,9,13,.72);border:1px solid rgba(190,55,55,.5);border-left:4px solid #a83232;
+  color:#f2fbff;font-weight:700;letter-spacing:.08em;font-size:17px;cursor:pointer;clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%);transition:background .12s}
+.cm-item svg{width:30px;height:30px;flex:none;filter:drop-shadow(0 0 4px rgba(93,230,214,.55))}
+.cm-item:hover,.cm-item.sel{background:rgba(196,52,52,.62);border-color:#ff6060;border-left-color:#ff9a9a;box-shadow:0 0 12px rgba(255,80,80,.4)}
+.cm-val{margin-left:auto;font-size:12px;letter-spacing:.14em;color:#5de6d6;font-weight:600;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-key{display:flex;gap:4px;align-items:center}
+.cm-key label{flex:none;width:86px;font-size:13px;font-weight:700;letter-spacing:.06em;color:#e8c9c9}
+.cm-key input{flex:1;min-width:0;font:inherit;font-size:13px;color:#e9fffb;background:#0c0204;border:1px solid rgba(150,42,42,.6);padding:3px 6px;outline:none}
+.cm-key input:focus{border-color:#5de6d6}
+.cm-key button{flex:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.08em;color:#5de6d6;background:rgba(5,28,24,.8);border:1px solid #2c8f84;padding:3px 7px;cursor:pointer}
+.cm-key button.x{color:#ff8a8a;border-color:#7d2929;background:rgba(28,5,8,.8)}
+.cm-keymsg{font-size:12px;color:#5de6d6;min-height:14px;padding-left:2px}.cm-keymsg.bad{color:#ff7a7f}
+.cm-opts{display:flex;flex-direction:column;gap:4px;padding:1px 0 5px 22px}
+.cm-sub{font-size:11px;letter-spacing:.24em;color:#b08080;margin:5px 0 0 2px;font-weight:700}
+.cm-opt{display:flex;align-items:center;justify-content:space-between;padding:3px 10px;background:rgba(28,5,8,.78);border:1px solid rgba(150,42,42,.5);border-left:3px solid #7d2929;
+  color:#d6e4ff;font-weight:600;font-size:15px;letter-spacing:.07em;cursor:pointer;clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+.cm-opt:hover{background:rgba(196,52,52,.5);color:#fff}
+.cm-opt.on{border-left-color:#5de6d6;color:#fff;background:rgba(150,35,35,.42)}
+.cm-opt.on::after{content:"";width:8px;height:8px;background:#5de6d6;box-shadow:0 0 7px #5de6d6;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.cm-foot{display:flex;gap:6px;margin-top:6px;align-items:stretch}
+.cm-time{padding:3px 12px;background:rgba(160,38,38,.8);border:1px solid #ff6b6b;color:#fff;font-weight:600;font-size:19px;letter-spacing:.04em;display:flex;align-items:center}
+.cm-close{flex:1;display:flex;align-items:center;gap:8px;padding:3px 12px;background:rgba(48,9,13,.78);border:1px solid rgba(190,55,55,.55);border-left:4px solid #a83232;color:#f2fbff;font-weight:700;letter-spacing:.14em;cursor:pointer}
+.cm-close:hover{background:rgba(196,52,52,.6)}
+.tog{font:inherit;font-weight:700;font-size:14px;letter-spacing:.14em;padding:2px 14px;cursor:pointer;color:var(--green);background:rgba(3,22,12,.8);border:1px solid rgba(61,255,154,.55);clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px))}
+.tog.off{color:#ff6b95;border-color:rgba(255,107,149,.7);background:rgba(30,4,10,.85);text-decoration:line-through}
+#mic.off span{opacity:.35}
+
+
+/* ---------- call screen: just her eyes; the CALL button appears when the cursor is on her ---------- */
+#orb{position:relative;width:392px;gap:0;align-items:stretch}
+#gifwrap{position:relative;width:100%;aspect-ratio:498/209;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));transition:transform .08s linear;background:#06150d}
+body.still *,body.still *::before,body.still *::after{animation-play-state:paused!important}
+.g{position:absolute;inset:0;width:100%;height:100%;opacity:0;display:block}.g.on{opacity:1}
+#orb::after{content:"";position:absolute;inset:0;pointer-events:none;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);box-shadow:inset 0 0 0 2px rgba(61,255,154,.65)}
+#orb .c{--fc:#3dff9a;z-index:3}
+#micTog{position:absolute;top:8px;right:10px;z-index:4}
+#wakeStat{position:absolute;left:8px;bottom:6px;right:8px;z-index:4;max-width:none;text-align:left;font-size:11px;min-height:0;padding:2px 6px;background:rgba(2,10,8,.72);
+  border-left:2px solid var(--green);color:#9fd8c0}
+#micTog,#wakeStat{opacity:0;pointer-events:none;transition:opacity .18s}
+#callview.hov #micTog,#callview.hov #wakeStat{opacity:1;pointer-events:auto}
+#callBtn{opacity:0;visibility:hidden;transition:opacity .18s}
+#callview.hov #callBtn,#callview.ring #callBtn{opacity:1;visibility:visible}
+#callview{gap:10px}
+
+@keyframes ringpulse{50%{box-shadow:0 0 30px rgba(255,60,70,.8),inset 0 0 24px rgba(255,60,70,.3)}}
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="cfg"></div>
+  <div id="col">
+  <div id="modechip"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div id="mainview" class="view">
+    <div id="chat">
+      <div class="line her" id="rowHer">
+        <div class="who"><div class="nm">Capri</div><div class="cbox red"><span class="arc"></span><b>CALL</b><i></i></div></div>
+        <div class="txt" id="bReply"></div>
+      </div>
+      <div class="line me" id="rowMe">
+        <div class="who"><div class="nm" style="color:var(--green)">You</div><div class="cbox green"><span class="arc"></span><b>CALL</b><i></i></div></div>
+        <div class="txt" id="bYou"></div>
+      </div>
+      <div id="bActs"></div>
+    </div>
+
+    <div id="frame">
+      <div id="frameTop"><span id="frameLabel">CAPRI // DORMANT</span><span id="vbars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+      <canvas id="noise" width="220" height="124"></canvas>
+      <img id="gif" src="gif2453.gif" alt="">
+      <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><span class="tag">NEURAL LINK // STABLE</span>
+    </div>
+
+    <div id="inrow">
+      <div id="bar"><span class="pr">&gt;_</span><input id="in" placeholder="Send a message." autocomplete="off"></div>
+      <button id="mic" title="mic (mute / unmute)"><span><img src="icons/mic.png" alt="mic"></span></button>
+    </div>
+    <div id="callbar"><button id="hangup" title="hang up"><span><img src="icons/hangup.png" alt="hang up"></span></button></div>
+  </div>
+
+  <!-- ============ CALL SCREEN ============ -->
+  <div id="callview" class="view on">
+    <div class="nm" id="callName" hidden>Capri</div>
+    <div id="orb">
+      <div id="gifwrap"><img class="g on" id="gA" src="capri_idle.gif" alt="Capri"><img class="g" id="gB" alt=""></div>
+      <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+      <button id="micTog" class="tog" title="microphone on/off (off = nothing is captured)">MIC: ON</button>
+      <div id="wakeStat"></div>
+      <div id="orbLabel" hidden></div>
+    </div>
+    <div id="callSub" hidden></div>
+    <div id="callhud" title="calling... click to cancel">
+      <svg class="hphone" viewBox="0 0 50 84" aria-hidden="true"><g stroke="currentColor" fill="none" stroke-width="1.4"><path d="M4 3h16M4 7h11M4 11h16M4 15h9"/><rect x="9" y="24" width="23" height="40" rx="3" stroke-width="2"/><rect x="13" y="28" width="15" height="8" stroke-width="1.4"/><g fill="currentColor" stroke="none"><rect x="13.0" y="40.0" width="4" height="4"/><rect x="19.4" y="40.0" width="4" height="4"/><rect x="25.8" y="40.0" width="4" height="4"/><rect x="13.0" y="46.4" width="4" height="4"/><rect x="19.4" y="46.4" width="4" height="4"/><rect x="25.8" y="46.4" width="4" height="4"/><rect x="13.0" y="52.8" width="4" height="4"/><rect x="19.4" y="52.8" width="4" height="4"/><rect x="25.8" y="52.8" width="4" height="4"/></g><g stroke-width="2"><path d="M38 62A8 8 0 0 1 30 70"/><path d="M43 62A13 13 0 0 1 30 75"/><path d="M48 62A18 18 0 0 1 30 80"/></g></g></svg>
+      <svg class="hcard" viewBox="0 0 40 90" aria-hidden="true"><polygon points="2,8 36,24 36,80 2,64" fill="currentColor" fill-opacity=".28" stroke="currentColor" stroke-width="1.4"/><polygon points="2,8 36,24 36,30 2,14" fill="currentColor" fill-opacity=".6"/><g stroke="currentColor" stroke-width="1.6"><path d="M7 26l22 10M7 33l18 8M7 40l22 10M7 47l14 6M7 54l22 10"/></g></svg>
+      <div class="hinfo">
+        <div class="hcall">CALL</div>
+        <div class="hbar"><div class="hin"><i class="hedge"></i><svg class="hset" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/><g class="harc" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M14 6.2a5 5 0 013.8 3.8"/><path d="M14 2.6a8.6 8.6 0 017.4 7.4"/></g></svg><span class="hname">Capri</span></div></div>
+        <div class="hmicro">CAPRI.LOCAL // LINE 01</div>
+      </div>
+    </div>
+    <button id="callBtn"><span id="callBtnTxt">CALL</span></button>
+    <button id="callBack" class="kb" hidden></button>
+  </div>
+
+  <!-- ============ INCOMING CALL ============ -->
+  <div id="incoming" class="view">
+    <div id="incLabel">INCOMING // CAPRI</div>
+    <div id="inchud" title="click to answer"></div>
+    <div id="incBtns">
+      <button id="incYes"><span><kbd>A</kbd> ANSWER</span></button>
+      <button id="incNo"><span><kbd>D</kbd> DECLINE</span></button>
+    </div>
+  </div>
+  </div><!-- /col -->
+</div>
+
+<audio id="ringprobe" hidden></audio>
+<script src="capri_voice.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const input = $("#in");
+const GIF = {idle:"gif2453.gif", greet:"gif2454.gif", hyped:"gif2455.gif", working:"gif2456.gif", alert:"gif_error.gif", listen:"gif2457.gif"};
+let speak = true, state = "dormant", dormT, cur, ctx, typeT, view = "call";
+let wakeStarted = false;
+function setCallState(b, phase){ fetch("/api/callstate", {method:"POST", body: JSON.stringify({inCall: b, phase: phase || (b ? "connected" : "idle")})}).catch(()=>{}); }
+let micMuted = false, inCall = false, callKind = "out", callMode = "idle", vadBusy = false, callTimer, callStart = 0, pendingReason = "", missT;
+
+function glitch(el, ms){
+  el.style.setProperty("--gd", ms + "ms");
+  el.classList.remove("glitch"); void el.offsetWidth; el.classList.add("glitch");
+  setTimeout(() => el.classList.remove("glitch"), ms + 50);
+}
+function setView(v){
+  view = v;
+  ["main","call","incoming"].forEach(n => { const el = $(n === "main" ? "#mainview" : n === "call" ? "#callview" : "#incoming"); el.classList.toggle("on", n === v); });
+  glitch($(v === "main" ? "#mainview" : v === "call" ? "#callview" : "#incoming"), 450);
+}
+
+/* ---------- main-view helpers ---------- */
+const THEME = {dormant:["#3dff9a","DORMANT"], listening:["#19f0ff","LISTENING"], talking:["#f2d44a","TALKING"], working:["#f2d44a","WORKING"], alert:["#ff2a6d","ERROR"]};
+let rewT, noiseRaf, curGif = "", curState = "";
+function pickGif(s, mood){ return s === "alert" ? GIF.alert : s === "listening" ? GIF.listen : s === "working" ? GIF.working : (GIF[mood] || GIF.idle); }
+function drawNoise(c, w, h, p){
+  c.globalAlpha = 1; c.fillStyle = "#020403"; c.fillRect(0, 0, w, h);
+  const cols = ["#3dff9a", "#ffffff", "#ff2a6d", "#19f0ff", "#f2d44a"];
+  for (let y = 0; y < h; y += 2){
+    if (Math.random() < .55){
+      const n = 1 + Math.floor(Math.random() * 4);
+      for (let k = 0; k < n; k++){
+        c.fillStyle = cols[Math.floor(Math.random() * cols.length)]; c.globalAlpha = .35 + Math.random() * .6;
+        c.fillRect(Math.random() * w, y, 2 + Math.random() * (Math.random() < .2 ? 60 : 14), 1);
+      }
+    }
+  }
+  const sy = Math.floor(p * h); c.globalAlpha = 1; c.fillStyle = "#19f0ff"; c.fillRect(0, sy, w, 2);
+  c.globalAlpha = .22; c.fillRect(0, sy - 3, w, 8); c.globalAlpha = 1;
+}
+function show(s, mood){
+  state = s; if (mood) curMood = mood;
+  const g = pickGif(s, mood), th = THEME[s] || THEME.talking, f = $("#frame");
+  const changed = g !== curGif || s !== curState; curGif = g; curState = s;
+  f.style.setProperty("--fc", th[0]); f.style.setProperty("--fcg", th[0] + "55");
+  $("#vbars").classList.toggle("on", s === "listening" || s === "talking");
+  if (!changed) return;
+  // every time she changes: REWIRING static + cyan sweep, then the new gif
+  clearTimeout(rewT); cancelAnimationFrame(noiseRaf);
+  $("#gif").src = g;
+  $("#frameLabel").textContent = "CAPRI // REWIRING"; f.classList.add("rew");
+  const t0 = performance.now(), dur = 430, cv = $("#noise"), c = cv.getContext("2d");
+  (function draw(t){ drawNoise(c, cv.width, cv.height, Math.min(1, (t - t0) / dur)); if (t - t0 < dur) noiseRaf = requestAnimationFrame(draw); })(t0);
+  rewT = setTimeout(() => { f.classList.remove("rew"); $("#frameLabel").textContent = "CAPRI // " + th[1]; }, dur);
+}
+/* little blue voice bars next to the label: follow your mic while listening, bounce while she talks */
+let micLevel = 0;
+const vbars = [...document.querySelectorAll("#vbars i")];
+setInterval(() => {
+  if (!$("#vbars").classList.contains("on")) return;
+  const lv = state === "listening" ? Math.max(.12, micLevel) : .35 + Math.random() * .65;
+  vbars.forEach((b, i) => { b.style.height = (3 + Math.random() * 12 * lv + (i % 3 === 0 ? 1 : 0)).toFixed(1) + "px"; });
+}, 90);
+/* her words type out letter by letter; with the BEEPS voice every letter blips (capri_voice.js) */
+let curMood = "idle";
+const TYPER = new CapriVoice.Typer(t => { $("#bReply").textContent = t; $("#callSub").textContent = t; });
+const engine = () => CapriVoice.engine(SET);
+const voiceOpts = () => ({sound: engine() === "beeps", pitch: SET.voice_pitch || "normal", volume: SET.voice_volume == null ? 0.6 : SET.voice_volume, mood: curMood});
+function typeInto(el, text, end){ TYPER.start(text, voiceOpts(), end); }
+function showBubble(you, acts, reply){
+  const c = $("#chat"); const wasHidden = !c.classList.contains("show");
+  c.classList.add("show");
+  $("#rowMe").style.display = you ? "flex" : "none"; $("#bYou").textContent = you || "";
+  $("#rowMe").style.order = 0; $("#rowHer").style.order = you ? 1 : 0; $("#bActs").style.order = 2;
+  const A = $("#bActs"); A.textContent = "";
+  (acts || []).forEach(x => { const d = document.createElement("div"); d.textContent = x.text; if (x.bad) d.className = "bad"; A.appendChild(d); });
+  if (reply === null) { TYPER.stop(); $("#bReply").textContent = "..."; $("#callSub").textContent = "..."; } else typeInto($("#bReply"), reply);
+  if (wasHidden) glitch(c, 400); else { glitch($("#rowHer .cbox"), 300); }
+}
+
+/* ---------- voice out ---------- */
+let sayT;
+async function say(text, done){
+  clearTimeout(sayT);
+  const eng = engine();
+  if (eng === "beeps" && text){                              // she "speaks" by typing with blips: done when the last letter is typed
+    if (TYPER.target === text || TYPER.target.startsWith(text)) TYPER.finish(text, () => { sayT = setTimeout(done, 450); });
+    else TYPER.start(text, voiceOpts(), () => { sayT = setTimeout(done, 450); });
+    return;
+  }
+  if (eng !== "off" && eng !== "beeps" && text){
+    try{
+      const r = await fetch("/api/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({text: text.slice(0, 400), engine: eng})});
+      if (!r.ok) throw 0;
+      ctx = ctx || new AudioContext(); await ctx.resume();
+      const buf = await ctx.decodeAudioData(await r.arrayBuffer());
+      if (cur) try{ cur.onended = null; cur.stop(); }catch(e){}
+      const src = ctx.createBufferSource(); src.buffer = buf; src.connect(ctx.destination); src.onended = done; src.start(); cur = src; return;
+    }catch(e){}
+  }
+  sayT = setTimeout(done, Math.max(700, (text || "").length * 22));      // text only: wait about reading time
+}
+function stopVoice(){ clearTimeout(sayT); TYPER.stop(); if (cur) try{ cur.onended = null; cur.stop(); }catch(e){} }
+
+/* ---------- ringtone (the Cyberpunk one) ---------- */
+let ringSrc, ringBuf;
+async function ringStart(){
+  try{
+    ctx = ctx || new AudioContext(); await ctx.resume();
+    if (!ringBuf) ringBuf = await ctx.decodeAudioData(await (await fetch("ringtone.mp3")).arrayBuffer());
+    ringStop();
+    ringSrc = ctx.createBufferSource(); ringSrc.buffer = ringBuf; ringSrc.loop = true;
+    ringSrc.connect(ctx.destination); ringSrc.start();
+  }catch(e){}
+}
+function ringStop(){ if (ringSrc){ try{ ringSrc.stop(); }catch(e){} ringSrc = null; } }
+
+/* ---------- chat turn ---------- */
+function afterTalk(){
+  clearTimeout(dormT);
+  dormT = setTimeout(() => show("dormant"), 900);
+  if (inCall){ vadBusy = false; setCallMode("listening"); }
+}
+let wakeCmd = "";
+function wakeCall(cmd){
+  if (inCall || callMode !== "idle" || view === "incoming") return;
+  wakeCmd = cmd || ""; wakeStarted = true; setView("call"); dialOut(900);          // pop up, ring, she picks up (and does what you said)
+}
+function voiceCommand(raw){
+  const t = raw.toLowerCase().replace(/[^a-z' ]/g, " ").replace(/\s+/g, " ").trim();
+  if (inCall && /\b(hang ?up|end (the |this )?call|goodbye|bye bye|bye capri)\b/.test(t)){ input.value = ""; hangUp(); return true; }
+  if (/\bactivate (the )?(mic|microphone)\b/.test(t)){
+    input.value = "";
+    if (inCall) showBubble(raw, [], "Mic's already hot, choom."); else { wakeStarted = false; setView("call"); dialOut(900); }
+    return true;
+  }
+  return false;
+}
+function addAct(text, bad){
+  const d = document.createElement("div"); d.textContent = text; if (bad) d.className = "bad"; $("#bActs").appendChild(d);
+}
+async function send(text){
+  if (!text.trim()) return;
+  if (text.trim() === "/ring"){ input.value = ""; return incomingStart("Testing the line, choom. Can you hear me?"); }
+  if (voiceCommand(text)) return;
+  const stripped = text.replace(/^\s*(hey|hello|hi|ok|okay|cool|yo|call)?[ ,]*capri[ ,.!?]*/i, "").trim();
+  if (stripped !== text.trim()){
+    if (!stripped){ input.value = ""; showBubble("", [], "Yeah, choom? I'm listening."); show("talking", "greet"); say("Yeah, choom? I'm listening.", afterTalk); return; }
+    text = stripped;
+  }
+  input.value = ""; clearTimeout(dormT); stopVoice();
+  showBubble(text, [], null); show("working", "working");
+  if (inCall) setCallMode("thinking");
+  let d = null, first = true;
+  try{
+    const r = await fetch("/api/chat", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({text})});
+    const reader = r.body.getReader(), dec = new TextDecoder(); let buf = "";
+    for (;;){
+      const {value, done} = await reader.read(); if (done) break;
+      buf += dec.decode(value, {stream:true}); let i;
+      while ((i = buf.indexOf("\n")) >= 0){
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!line) continue;
+        const m = JSON.parse(line);
+        if (m.t === "say"){                      // her words appear as they are generated
+          if (first){ first = false; TYPER.stop(); TYPER.target = ""; TYPER.i = 0; show("talking", "idle"); if (inCall) setCallMode("talking"); }
+          TYPER.follow(m.text, voiceOpts());                // types (and blips) as her words stream in
+        } else if (m.t === "act"){ addAct(m.text, m.bad); }
+        else if (m.t === "done"){ d = m; }
+      }
+    }
+  }catch(e){ d = {say: "Lost the link, choom. Is server.py running?", mood: "alert"}; }
+  if (!d) d = {say: "...", mood: "idle"};
+  show(d.mood === "alert" ? "alert" : "talking", d.mood || "idle");
+  if (!TYPER.target) TYPER.start(d.say || "...", voiceOpts()); else TYPER.follow(d.say || "...", voiceOpts());   // type the final text (restarts only if it changed)
+  if (inCall) setCallMode("talking");
+  say(d.say || "", afterTalk);
+  if (d.hangup) setTimeout(() => hangUp(true), 2400);          // "I'll call you when it's done, choom!" then she hangs up
+}
+input.addEventListener("keydown", e => { if (e.key === "Enter") send(input.value); });
+function doStop(){
+  fetch("/api/stop", {method:"POST"}); stopVoice();
+  showBubble("", [{text:"// all actions flatlined", bad:true}], "Flatlined. Standing down, choom."); show("alert", "alert"); afterTalk();
+}
+function closeApp(){ fetch("/api/hide", {method:"POST", body:"{}"}).catch(()=>{}); }
+
+/* ---------- one-shot mic (M) -> local Whisper ---------- */
+let mr, chunks = [];
+async function blobTo16k(blob){
+  const ac = new AudioContext();
+  const buf = await ac.decodeAudioData(await blob.arrayBuffer()); ac.close();
+  const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(buf.duration * 16000)), 16000);
+  const src = off.createBufferSource(); src.buffer = buf; src.connect(off.destination); src.start();
+  return (await off.startRendering()).getChannelData(0);          // Float32Array, 16 kHz mono
+}
+async function transcribe(blob){
+  let r;
+  try{
+    const pcm = await blobTo16k(blob);
+    r = await fetch("/api/stt", {method:"POST", headers:{"X-PCM":"f32"}, body: new Blob([pcm.buffer])});
+  }catch(e){ r = await fetch("/api/stt", {method:"POST", body: blob}); }   // fallback: let the server decode
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  return (d.text || "").trim();
+}
+function micFail(msg){
+  showBubble("", [{text:"// mic error: " + String(msg).slice(0, 260), bad:true}], "My ears are glitching, choom.");
+  show("alert", "alert"); vadBusy = false; if (inCall) setCallMode("listening");
+}
+async function toggleMic(){
+  const btn = $("#mic");
+  if (!SET.voice){ showBubble("", [{text:"// microphone is OFF", bad:true}], "My mic is off, choom. Turn it on in the config menu (right-click)."); return; }
+  if (mr && mr.state === "recording"){ mr.stop(); return; }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    mr = new MediaRecorder(stream); chunks = [];
+    mr.ondataavailable = e => chunks.push(e.data);
+    mr.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop()); btn.classList.remove("rec");
+      showBubble("", [{text:"// decoding your voice..."}], null);
+      try{
+        const text = await transcribe(new Blob(chunks));
+        if (text) send(text); else { showBubble("", [{text:"// didn't catch that", bad:true}], "Say again, choom?"); show("dormant"); vadBusy = false; if (inCall) setCallMode("listening"); }
+      }catch(e){ micFail(e.message); }
+    };
+    vadBusy = true;                                   // pause hands-free while you hold the mic
+    mr.start(); btn.classList.add("rec"); clearTimeout(dormT); show("listening");
+  }catch(e){ micFail("mic blocked or missing (" + e.name + ")"); }
+}
+$("#mic").onclick = toggleMic;
+
+/* ---------- CALLS ---------- */
+function setCallMode(m){
+  callMode = m;
+  $("#orb").classList.toggle("fast", m === "ringing");
+  $("#mic").classList.toggle("live", m === "listening");
+}
+function fmt(s){ return Math.floor(s/60) + ":" + String(s % 60).padStart(2, "0"); }
+function paintCallBtn(){
+  const ringing = callMode === "ringing" && callKind === "out";
+  const hud = $("#callhud"), wasOn = hud.classList.contains("on");
+  hud.classList.toggle("on", ringing);
+  $("#callName").style.display = ringing ? "none" : "";
+  $("#orb").style.display = ringing ? "none" : "";
+  $("#callBtn").style.display = ringing ? "none" : "";
+  if (ringing && !wasOn) glitch(hud, 500);
+}
+function openCallScreen(){
+  if (inCall) return;
+  setView("call"); callKind = "out"; setCallMode("idle"); paintCallBtn(); $("#callSub").textContent = "";
+}
+function callPress(){
+  if (callMode === "idle") dialOut(); else hangUp();
+}
+function dialOut(ms){
+  setCallState(true, "ringing");
+  callKind = "out"; setCallMode("ringing"); paintCallBtn(); ringStart();
+  callTimer = setTimeout(() => { ringStop(); connect("Hey choom. I'm here. What do you need?"); }, ms || 1300);
+}
+async function connect(firstLine){
+  setCallState(true, "connected");
+  inCall = true; callStart = Date.now(); vadBusy = true; setCallMode("talking"); setView("main");
+  paintCallBtn();
+  startVAD();
+  if (wakeCmd){ const c = wakeCmd; wakeCmd = ""; showBubble("", [{text:"// call connected"}], null); show("working", "working"); send(c); return; }
+  showBubble("", [{text:"// call connected"}], firstLine); show("talking", "greet");
+  say(firstLine, afterTalk);
+}
+function hangUp(quiet){
+  setCallState(false);
+  if (wakeStarted){ wakeStarted = false; setTimeout(() => closeApp(), 1100); }
+  clearTimeout(callTimer); clearInterval(callTimer); ringStop(); stopVoice(); stopVAD();
+  const was = inCall; inCall = false; setCallMode("idle"); paintCallBtn();
+  setView("call"); show("dormant");
+  if (was && !quiet) showBubble("", [{text:"// call ended " + fmt(Math.floor((Date.now() - callStart) / 1000))}], "Line's dead. Ping me anytime, choom.");
+}
+$("#hangup").onclick = hangUp;
+$("#callBtn").onclick = callPress;
+$("#callhud").onclick = hangUp;
+$("#callBack").onclick = () => { if (inCall || callMode !== "idle") hangUp(); else setView("main"); };
+
+/* incoming (Capri calls you) */
+function incomingStart(reason, kind){
+  $("#incLabel").textContent = kind === "timer" ? "TIMER // TIME'S UP" : kind === "reminder" ? "REMINDER // CAPRI" : "INCOMING // CAPRI";
+  if (inCall || view === "incoming") return;
+  pendingReason = reason || ""; callKind = "in"; setCallState(true, "incoming");
+  setView("incoming"); ringStart();
+  clearTimeout(missT); missT = setTimeout(() => { if (view === "incoming") missed(); }, 30000);
+}
+function missed(){
+  setCallState(false);
+  ringStop(); setView("call");
+  showBubble("", [{text:"// missed call from Capri", bad:true}], "You didn't pick up, choom. " + (pendingReason || "I'll be around."));
+}
+function answer(){
+  clearTimeout(missT); ringStop(); callKind = "in";
+  connect(pendingReason || "Hey choom, it's me. Just checking in on you.");
+}
+function decline(){
+  setCallState(false);
+  clearTimeout(missT); ringStop(); setView("call");
+  showBubble("", [{text:"// declined call from Capri"}], "Fine, choom. Ping me when you need me.");
+}
+$("#incYes").onclick = answer; $("#incNo").onclick = decline;
+
+/* hands-free voice during a call: detect speech, cut on silence, local Whisper */
+let vadStream, vadCtx, vadProc, vadSrc;
+function resampleTo16k(x, inRate){
+  if (inRate === 16000) return x.slice();
+  const ratio = inRate / 16000, n = Math.floor(x.length / ratio), out = new Float32Array(n);
+  for (let i = 0; i < n; i++){ const p = i * ratio, i0 = Math.floor(p), i1 = Math.min(i0 + 1, x.length - 1), f = p - i0; out[i] = x[i0] * (1 - f) + x[i1] * f; }
+  return out;
+}
+async function sendPCM(pcm){
+  try{
+    const r = await fetch("/api/stt", {method:"POST", headers:{"X-PCM":"f32"}, body: new Blob([pcm.buffer])}); const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    const text = (d.text || "").trim();
+    if (text.length > 1) send(text); else { vadBusy = false; setCallMode("listening"); }
+  }catch(e){ micFail(e.message); }
+}
+async function startVAD(){
+  if (!SET.voice) return;                                  // microphone switched OFF: never open it
+  try{
+    vadStream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}});
+    vadCtx = new AudioContext(); await vadCtx.resume();
+    vadSrc = vadCtx.createMediaStreamSource(vadStream);
+    vadProc = vadCtx.createScriptProcessor(2048, 1, 1);
+    let ring = [], seg = null, lastVoice = 0, noise = 0.01, startT = 0;
+    const PRE = 8;                                       // keeps ~0.3 s from before you started talking, so first words aren't cut
+    vadProc.onaudioprocess = e => {
+      if (!inCall) return;
+      const chunk = resampleTo16k(e.inputBuffer.getChannelData(0), vadCtx.sampleRate);
+      let sum = 0; for (let i = 0; i < chunk.length; i++) sum += chunk[i] * chunk[i];
+      const rms = Math.sqrt(sum / chunk.length), now = performance.now();
+      micLevel = Math.min(1, rms / 0.15); $("#mic").style.setProperty("--lvl", micLevel.toFixed(2));
+      const thr = Math.max(0.008, noise * 2.4 + 0.005);
+      if (vadBusy || micMuted){ ring = []; seg = null; return; }
+      if (rms > thr){
+        lastVoice = now;
+        if (!seg){ seg = ring.slice(); startT = now; ring = []; }
+        seg.push(chunk);
+      } else if (seg){
+        seg.push(chunk);
+        if (now - lastVoice > 700){                     // 1 s of quiet = you're done
+          const s = seg; seg = null; const dur = now - startT; vadBusy = true;
+          let n = 0; s.forEach(c => n += c.length); const pcm = new Float32Array(n); let o = 0; s.forEach(c => { pcm.set(c, o); o += c.length; });
+          if (dur < 500){ vadBusy = false; return; }
+          setCallMode("thinking"); sendPCM(pcm);
+        }
+      } else {
+        noise = noise * 0.97 + rms * 0.03; ring.push(chunk); if (ring.length > PRE) ring.shift();
+      }
+    };
+    vadSrc.connect(vadProc); vadProc.connect(vadCtx.destination);
+  }catch(e){ micFail("mic blocked or missing (" + e.name + ")"); }
+}
+function stopVAD(){ try{ if (vadProc){ vadProc.onaudioprocess = null; vadProc.disconnect(); } if (vadSrc) vadSrc.disconnect(); }catch(e){} vadProc = vadSrc = null; if (vadStream) vadStream.getTracks().forEach(t => t.stop()); vadStream = null; if (vadCtx) try{ vadCtx.close(); }catch(e){} vadCtx = null; }
+
+/* Capri phones you (call_me tool) */
+setInterval(async () => {
+  try{ const d = await (await fetch("/api/events")).json();
+       (d.events || []).forEach(e => { if (e.type === "incoming") incomingStart(e.reason, e.kind); else if (e.type === "act") addAct(e.text, e.bad); else if (e.type === "wake") wakeCall(e.cmd); else if (e.type === "cmd" && view === "incoming") (e.cmd === "answer" ? answer() : decline()); else if (e.type === "voice") { SET.voice = e.on; micMuted = !e.on; renderCfg(); if (!e.on) stopVAD(); } }); }catch(e){}
+}, 600);
+
+/* ---------- planets: each shard revolves around her on its own orbit ---------- */
+const planets = [...document.querySelectorAll("#orb .pl")].map((g, i) => {
+  const st = g.getAttribute("style") || ""; g.removeAttribute("style");
+  return {g, d: parseFloat((/--d:([\d.]+)s/.exec(st) || [0, 9])[1]), dir: /reverse/.test(st) ? -1 : 1, a: i * 53};
+});
+let lastT = performance.now();
+function spinTick(t){
+  const dt = Math.min(0.1, (t - lastT) / 1000); lastT = t;
+  const k = $("#orb").classList.contains("fast") ? 2.5 : 1;
+  planets.forEach(p => { p.a += 360 / p.d * p.dir * dt * k; p.g.setAttribute("transform", "rotate(" + p.a.toFixed(2) + " 100 100)"); });
+  requestAnimationFrame(spinTick);
+}
+requestAnimationFrame(spinTick);
+
+/* ---------- eye follows your mouse (call screen) ---------- */
+function look(mx, my){
+  if (view !== "call") return;
+  const el = $("#gifwrap"), r = el.getBoundingClientRect();
+  const cx = window.screenX + r.left + r.width/2, cy = window.screenY + r.top + r.height/2;
+  const dx = mx - cx, dy = my - cy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, d/300);
+  el.style.transform = `translate(${(dx/d*5*k).toFixed(1)}px,${(dy/d*4*k).toFixed(1)}px)`;     // she leans toward your mouse
+}
+setInterval(() => { if (!still && view === "call" && !$("#orb").style.display) glitch($("#gifwrap"), 380); }, 4200);
+let polling = false;
+setInterval(async () => {
+  if (polling || view !== "call") return;
+  polling = true;
+  try{ const p = await (await fetch("/api/mouse")).json(); const s = window.devicePixelRatio || 1; look(p.x / s, p.y / s); }catch(e){}
+  polling = false;
+}, 40);
+window.addEventListener("mousemove", e => look(e.screenX, e.screenY));
+
+/* ---------- what she hears + wake status (call screen) ---------- */
+let healthBusy = false;
+setInterval(async () => {
+  if (healthBusy || view !== "call") return;
+  healthBusy = true;
+  try{
+    const d = await (await fetch("/api/health")).json();
+    const bars = Math.min(5, Math.round(d.level / 0.02)), meter = "\u25AE".repeat(bars) + "\u25AF".repeat(5 - bars);
+    const bad = /^off/.test(d.wake);
+    const esc = s => String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+    $("#wakeStat").innerHTML = `WAKE: <b class="${bad ? "bad" : ""}">${esc(d.wake).toUpperCase()}</b> &middot; MIC ${meter} &middot; AI: <b>${esc(d.ai)}</b>` +
+      ` &middot; CLIP: ${d.clip && d.clip.running ? `<b>REC ${Math.round(d.clip.seconds)}s</b>` : "OFF"}` +
+      (d.heard ? `<br>HEARD: <i>"${esc(d.heard).slice(0, 70)}"</i>` : `<br>say "Hey", "Capri", "Hey Capri" or "Call"`);
+  }catch(e){}
+  healthBusy = false;
+}, 1200);
+
+/* ---------- window: fit + drag ---------- */
+let fitT;
+new ResizeObserver(() => { clearTimeout(fitT); fitT = setTimeout(() =>
+  fetch("/api/fit", {method:"POST", body: JSON.stringify({h: $("#root").offsetHeight})}).catch(()=>{}), 60); }).observe($("#root"));
+let drag = null, pdx = 0, pdy = 0, raf = 0;
+document.addEventListener("mousedown", e => { if (e.target.closest("input,button,select,#cfg,#bReply,#micTog")) return; drag = {x:e.screenX, y:e.screenY}; });
+window.addEventListener("mousemove", e => {
+  if (!drag) return;
+  pdx += e.screenX - drag.x; pdy += e.screenY - drag.y; drag.x = e.screenX; drag.y = e.screenY;
+  if (!raf) raf = requestAnimationFrame(() => { raf = 0; const dx = pdx, dy = pdy; pdx = pdy = 0;
+    if (dx || dy) fetch("/api/move", {method:"POST", body: JSON.stringify({dx, dy})}).catch(()=>{}); });
+});
+window.addEventListener("mouseup", () => drag = null);
+
+/* ---------- voices list + keyboard ---------- */
+document.addEventListener("keydown", e => {
+  if (["INPUT","SELECT"].includes(document.activeElement.tagName) || e.ctrlKey || e.altKey || e.metaKey) return;
+  const k = e.key.toLowerCase();
+  if (view === "incoming"){ if (k === "a" || k === "enter") answer(); else if (k === "d" || k === "escape") decline(); return; }
+  if (view === "call"){ if (k === "b") setView("main"); return; }
+  if (k === "m") toggleMic();
+  else if (k === "x") doStop(); else if (k === "c") closeApp(); else if (k === "h") hangUp();
+});
+
+/* ---------- hover: cursor on Capri -> cut to the swarm of eyes, then the narrow eyes, and the CALL button appears ---------- */
+["capri_idle.gif", "capri_multi.gif", "capri_narrow.gif"].forEach(u => { new Image().src = u; });      // preload so the cut is instant
+let hovT, cutT;
+let front = "gA";
+/* Windows makes the mouse pointer blink when a see-through window repaints under it, and her GIFs repaint ~30x a second.
+   So while the pointer is inside her window (Python tells us), she freezes on the current frame and pauses animations. */
+let still = false, stillT;
+function freezeImg(img){
+  if (!img || img.dataset.live || !img.complete || !img.naturalWidth || img.src.startsWith("data:")) return;
+  try{ const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight;
+       c.getContext("2d").drawImage(img, 0, 0); img.dataset.live = img.src; img.src = c.toDataURL(); }catch(e){}
+}
+function thawImg(img){
+  if (!img || !img.dataset.live) return;
+  if (img.src.startsWith("data:")) img.src = img.dataset.live;
+  delete img.dataset.live;
+}
+window.capriStill = on => {
+  on = !!on; if (on === still) return; still = on; clearTimeout(stillT);
+  const imgs = () => [$("#gif"), $("#gA"), $("#gB")];
+  if (on) stillT = setTimeout(() => { if (!still) return; document.body.classList.add("still"); imgs().forEach(freezeImg); }, 1400);   // let a hover cut finish first
+  else { document.body.classList.remove("still"); imgs().forEach(thawImg); }
+};
+function showGif(url){
+  const next = front === "gA" ? "gB" : "gA", n = $("#" + next), cur = $("#" + front);
+  n.onload = () => { n.onload = null; n.classList.add("on"); cur.classList.remove("on"); front = next; };
+  n.src = url;
+}
+function cutTo(on){
+  glitch($("#orb"), 260); clearTimeout(cutT);
+  if (on){ showGif("capri_multi.gif?" + Date.now()); cutT = setTimeout(() => showGif("capri_narrow.gif?" + Date.now()), 1180); }   // swarm of eyes plays once, then the narrow eyes
+  else showGif("capri_idle.gif?" + Date.now());
+}
+function setHover(on){ const v = $("#callview"); if (v.classList.contains("hov") === on) return; v.classList.toggle("hov", on); cutTo(on); }
+$("#callview").addEventListener("mouseenter", () => { clearTimeout(hovT); setHover(true); });
+$("#callview").addEventListener("mouseleave", () => { clearTimeout(hovT); hovT = setTimeout(() => setHover(false), 280); });
+
+/* red version of the call card for incoming calls / timers / reminders (click it to answer) */
+$("#inchud").innerHTML = $("#callhud").innerHTML;
+$("#inchud").onclick = () => answer();
+
+/* ---------- settings + right-click config menu ---------- */
+let SET = {mode: "off", defaults: {}, clip: true, clip_quality: "normal", clip_audio: true, scale: 0.85, roam: true, voice: true, speak: true, voice_engine: "beeps", voice_pitch: "normal", voice_volume: 0.6, text_bg: false, minecraft: "ask", homework_input: "type"};
+const MODE_LIST = [["off", "OFF"], ["music", "MUSIC"], ["research", "RESEARCH"], ["homework", "HOMEWORK"], ["gaming", "GAMING"], ["watching", "WATCHING"]];
+const DEF_OPTS = {music: ["spotify", "youtube", "youtube music", "apple music", "soundcloud"], homework: ["word", "google docs", "notepad", "here"],
+                  gaming: ["steam", "riot", "roblox", "minecraft", "epic"], watching: ["youtube", "netflix", "disney+", "prime video", "twitch"]};
+const SIZES = [["TINY", 0.65], ["SMALL", 0.75], ["MEDIUM", 0.85], ["LARGE", 1.0], ["XL", 1.15]];
+const MODE_QUIPS = {music: "Music mode, preem. Tell me what to play, choom.", research: "Research mode. What should I research on?", homework: "Homework mode. Ugh, fine. What are we writing?",
+                    gaming: "Gaming mode! What are we launching, choom? Or say 'play Minecraft for me' and I'll take over.", watching: "Watching mode. What are we watching, baby?", off: "Back to normal, choom."};
+async function setSetting(key, value){
+  try{ SET = await (await fetch("/api/settings", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({key, value})})).json(); }catch(e){}
+  micMuted = !SET.voice; renderCfg();
+  if (!SET.voice) stopVAD(); else if (inCall && !vadStream) startVAD();       // mic OFF closes the browser's microphone too
+}
+const HEXI = g => `<svg viewBox="0 0 32 32"><path d="M16 2l12 7v14l-12 7-12-7V9z" fill="none" stroke="#5de6d6" stroke-width="1.6"/>${g}</svg>`;
+const S5 = 'stroke="#5de6d6" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+const ICONS = {
+  language: HEXI(`<circle cx="16" cy="16" r="6.5" ${S5}/><path d="M9.5 16h13M16 9.5c-2.6 3.6-2.6 9.4 0 13M16 9.5c2.6 3.6 2.6 9.4 0 13" ${S5}/>`),
+  mode: HEXI('<path d="M16 9l5 7-5 7-5-7z" fill="#5de6d6"/>'), music: HEXI(`<path d="M13 22a2.4 2.4 0 1 1 0-4.8V10l8-2v10" ${S5}/><circle cx="21" cy="19" r="2.4" fill="#5de6d6"/>`),
+  homework: HEXI(`<path d="M11 21l1-4 8-8 3 3-8 8z" ${S5}/>`), gaming: HEXI(`<rect x="9" y="12" width="14" height="8" rx="3" ${S5}/><path d="M13 14v4M11 16h4" ${S5}/><circle cx="19.5" cy="16" r="1.2" fill="#5de6d6"/>`),
+  watching: HEXI('<path d="M13 11l8 5-8 5z" fill="#5de6d6"/>'), size: HEXI(`<path d="M10 14v-4h4M22 14v-4h-4M10 18v4h4M22 18v4h-4" ${S5}/>`),
+  clip: HEXI('<circle cx="16" cy="16" r="6.5" fill="none" stroke="#ff5a5a" stroke-width="1.6"/><circle cx="16" cy="16" r="3" fill="#ff5a5a"/>'),
+  keys: HEXI(`<circle cx="12.5" cy="16" r="3.5" ${S5}/><path d="M16 16h8M21 16v3M24 16v2" ${S5}/>`),
+  voice: HEXI(`<path d="M10 14v4M13 11v10M16 13v6M19 10v12M22 14v4" ${S5}/>`),
+  system: HEXI(`<circle cx="16" cy="16" r="4" ${S5}/><path d="M16 8v3M16 21v3M8 16h3M21 16h3" ${S5}/>`)};
+let cfgSel = "mode";
+const VOICE_LBL = {beeps: "BEEPS", piper: "PIPER", voicebox: "VOICEBOX", api: "API", off: "OFF"};
+let VS = {voicebox: false, api: ""};
+let KEYS = {slots: [], brains: []}, keyMsg = {text: "", bad: false};
+const loadKeys = () => fetch("/api/keys").then(r => r.json()).then(d => { KEYS = d; renderCfg(); }).catch(() => {});
+async function saveKey(slot, key, voice_id){
+  keyMsg = {text: key ? "saving + testing..." : "removing...", bad: false}; renderCfg();
+  try{ const r = await (await fetch("/api/keys", {method:"POST", body: JSON.stringify({slot, key: key || "", voice_id})})).json();
+       keyMsg = {text: r.msg, bad: !r.ok || r.check === "rejected"}; }catch(e){ keyMsg = {text: "couldn't reach Capri", bad: true}; }
+  loadKeys(); voiceStatus();
+}
+const voiceStatus = () => fetch("/api/voicestatus").then(r => r.json()).then(d => { VS = d; renderCfg(); }).catch(() => {});
+function voiceTest(){ const l = "Hey choom. This is how I sound now. Like it?"; showBubble("", [], l); show("talking", "greet"); say(l, afterTalk); }
+let LANGS = [{code: "en", name: "English", native: "English"}];
+fetch("/api/languages").then(r => r.json()).then(d => { LANGS = d.languages || LANGS; renderCfg(); }).catch(() => {});
+async function trText(t){ if (!SET.language || SET.language === "en") return t; try{ return (await (await fetch("/api/tr", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({text: t})})).json()).text || t; }catch(e){ return t; } }
+function opt(label, on, fn){ const d = document.createElement("div"); d.className = "cm-opt" + (on ? " on" : ""); d.textContent = label; d.onclick = fn; return d; }
+function sub(t){ const d = document.createElement("div"); d.className = "cm-sub"; d.textContent = t; return d; }
+function renderCfg(){
+  const m = SET.mode || "off", chipEl = $("#modechip");
+  chipEl.className = m !== "off" ? "on" : ""; chipEl.innerHTML = `<i></i>MODE // <b>${m.toUpperCase()}</b>`;
+  const c = $("#cfg"); c.textContent = "";
+  const head = document.createElement("div"); head.className = "cm-head"; head.innerHTML = `CAPRI <small>// CONFIG</small>`; c.appendChild(head);
+  const defs = SET.defaults || {}, sizeLbl = (SIZES.find(([l, v]) => Math.abs((SET.scale || 0.85) - v) < 0.03) || ["CUSTOM"])[0];
+  const cats = [["mode", "MODE", m.toUpperCase()], ["music", "MUSIC", (defs.music || "").toUpperCase()], ["homework", "HOMEWORK", (defs.homework || "").toUpperCase()],
+                ["gaming", "GAMING", (defs.gaming || "").toUpperCase()], ["watching", "WATCHING", (defs.watching || "").toUpperCase()], ["clip", "CLIP", SET.clip ? "REC 30s" : "OFF"], ["size", "SIZE", sizeLbl], ["voice", "VOICE", VOICE_LBL[engine()] || "BEEPS"], ["keys", "API KEYS", (KEYS.slots || []).filter(x => x.hint).length + " SAVED"], ["language", "LANGUAGE", ((LANGS.find(l => l.code === (SET.language || "en")) || {}).native || "English").toUpperCase()], ["system", "SYSTEM", SET.voice ? "MIC ON" : "MIC OFF"]];
+  cats.forEach(([k, label, val]) => {
+    const it = document.createElement("div"); it.className = "cm-item" + (cfgSel === k ? " sel" : "");
+    it.innerHTML = ICONS[k] + `<span>${label}</span><span class="cm-val">${val}</span>`; it.onclick = () => { cfgSel = cfgSel === k ? "" : k; renderCfg(); }; c.appendChild(it);
+    if (cfgSel !== k) return;
+    const box = document.createElement("div"); box.className = "cm-opts";
+    if (k === "mode") MODE_LIST.forEach(([mk, ml]) => box.appendChild(opt(ml, m === mk, async () => { await setSetting("mode", mk); const q = await trText(MODE_QUIPS[mk]); showBubble("", [], q); show("talking", "greet"); say(q, afterTalk); })));
+    if (k === "language"){ box.appendChild(sub("THE LANGUAGE SHE SPEAKS AND HEARS")); LANGS.forEach(l => box.appendChild(opt(l.native.toUpperCase() + (l.native !== l.name ? "  // " + l.name.toUpperCase() : ""), (SET.language || "en") === l.code, () => setSetting("language", l.code)))); }
+    if (DEF_OPTS[k]){ box.appendChild(sub("DEFAULT APP (used unless you say otherwise)")); DEF_OPTS[k].forEach(o => box.appendChild(opt(o.toUpperCase(), defs[k] === o, () => setSetting("default." + k, o)))); }
+    if (k === "homework"){ box.appendChild(sub("HOW SHE WRITES")); [["type", "TYPE IT (takes your keyboard)"], ["paste", "JUST DO IT (instant)"]].forEach(([hk, hl]) => box.appendChild(opt(hl, SET.homework_input === hk, () => setSetting("homework_input", hk)))); }
+    if (k === "gaming"){ box.appendChild(sub("AUTOPILOT (MINECRAFT JAVA, NO MODS): SAY 'CHOP WOOD', 'FIND DIAMONDS', 'PLAY FOR ME'. 'STOP' OR F8 = YOUR TURN"));
+      box.appendChild(opt("SET UP AUTOPILOT (NO MODS)", false, () => fetch("/api/mcsetup", {method:"POST", body: "{}"})));
+      box.appendChild(sub("MINECRAFT EDITION")); [["ask", "ASK ME"], ["java", "JAVA"], ["bedrock", "BEDROCK"]].forEach(([mk, ml]) => box.appendChild(opt(ml, SET.minecraft === mk, () => setSetting("minecraft", mk)))); }
+    if (k === "clip"){
+      box.appendChild(sub("SAYS 'CLIP' / 'CLIP THAT' -> SAVES THE LAST 30 SECONDS"));
+      box.appendChild(opt("BUFFER: " + (SET.clip ? "ON (memory only)" : "OFF"), SET.clip, () => setSetting("clip", !SET.clip)));
+      box.appendChild(sub("QUALITY"));
+      [["low", "LOW  540p / 12 fps"], ["normal", "NORMAL  720p / 15 fps"], ["high", "HIGH  1080p / 24 fps"]].forEach(([qk, ql]) => box.appendChild(opt(ql, SET.clip_quality === qk, () => setSetting("clip_quality", qk))));
+      box.appendChild(opt("SYSTEM SOUND IN CLIPS: " + (SET.clip_audio ? "ON" : "OFF"), SET.clip_audio, () => setSetting("clip_audio", !SET.clip_audio)));
+      box.appendChild(sub("ACTIONS"));
+      box.appendChild(opt("SAVE A CLIP NOW", false, () => fetch("/api/clip", {method:"POST", body: JSON.stringify({action:"save"})}).then(r => r.json()).then(d => showBubble("", [], d.msg))));
+      box.appendChild(opt("OPEN CLIPS FOLDER", false, () => fetch("/api/clip", {method:"POST", body: JSON.stringify({action:"open"})})));
+    }
+    if (k === "voice"){
+      box.appendChild(sub("HOW SHE TALKS"));
+      [["beeps", "CAPRI BEEPS (default, like RPG dialogue)"], ["piper", "PIPER (local spoken voice)"], ["voicebox", "VOICEBOX (your cloned voice" + (VS.voicebox ? ", found)" : ", app not running)")],
+       ["api", "API VOICE (OpenAI / ElevenLabs" + (VS.api ? ": " + VS.api + ")" : ": set up voice_api.json)")], ["off", "OFF (text only)"]]
+        .forEach(([vk, vl]) => box.appendChild(opt(vl, engine() === vk, async () => { await setSetting("voice_engine", vk); voiceTest(); })));
+      if (engine() === "beeps"){
+        box.appendChild(sub("BEEP TONE"));
+        [["low", "LOW"], ["normal", "NORMAL (her default)"], ["high", "HIGH"]].forEach(([pk, pl]) => box.appendChild(opt(pl, (SET.voice_pitch || "normal") === pk, async () => { await setSetting("voice_pitch", pk); voiceTest(); })));
+        box.appendChild(sub("VOLUME"));
+        [[0.3, "QUIET"], [0.6, "NORMAL"], [1, "LOUD"]].forEach(([vv, vl]) => box.appendChild(opt(vl, Math.abs((SET.voice_volume == null ? 0.6 : SET.voice_volume) - vv) < 0.05, async () => { await setSetting("voice_volume", vv); voiceTest(); })));
+      }
+      box.appendChild(opt("TEST HER VOICE", false, voiceTest));
+    }
+    if (k === "keys"){
+      box.appendChild(sub("YOUR KEYS STAY ON THIS PC (never uploaded, never shown again)"));
+      const msg = document.createElement("div"); msg.className = "cm-keymsg"; msg.textContent = keyMsg.text; if (keyMsg.bad) msg.classList.add("bad");
+      (KEYS.slots || []).forEach(sl => {
+        const row = document.createElement("div"); row.className = "cm-key";
+        const lb = document.createElement("label"); lb.textContent = sl.label.toUpperCase();
+        const inp = document.createElement("input"); inp.type = "password"; inp.autocomplete = "off"; inp.spellcheck = false;
+        inp.placeholder = sl.hint ? "saved: " + sl.hint : "paste key";
+        const sv = document.createElement("button"); sv.textContent = "SAVE";
+        const save = () => saveKey(sl.slot, inp.value, sl.slot === "elevenlabs" ? ($("#vidIn") || {}).value : undefined);
+        sv.onclick = save; inp.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") save(); });
+        row.append(lb, inp, sv);
+        if (sl.hint){ const x = document.createElement("button"); x.className = "x"; x.textContent = "X"; x.title = "remove this key"; x.onclick = () => saveKey(sl.slot, ""); row.append(x); }
+        box.appendChild(row);
+        if (sl.slot === "elevenlabs"){
+          const r2 = document.createElement("div"); r2.className = "cm-key";
+          const l2 = document.createElement("label"); l2.textContent = "VOICE ID";
+          const i2 = document.createElement("input"); i2.id = "vidIn"; i2.placeholder = "ElevenLabs voice ID"; i2.value = KEYS.voice_id || ""; i2.addEventListener("keydown", e => e.stopPropagation());
+          r2.append(l2, i2); box.appendChild(r2);
+        }
+      });
+      box.appendChild(msg);
+      box.appendChild(sub("HER BRAIN (who thinks for her)"));
+      (KEYS.brains || []).forEach(b => box.appendChild(opt((b.name === "local" ? "LOCAL (OLLAMA, free, private)" : b.name.toUpperCase() + "  // " + (b.model || "")) + (b.ready ? "" : "  (needs a key)"),
+        KEYS.active === b.name, async () => { const r = await (await fetch("/api/keys", {method:"POST", body: JSON.stringify({brain: b.name})})).json(); keyMsg = {text: r.msg, bad: !r.ok}; loadKeys(); })));
+      box.appendChild(sub("API VOICE USES (right-click > VOICE > API VOICE)"));
+      [["openai", "OPENAI VOICE"], ["elevenlabs", "ELEVENLABS VOICE"]].forEach(([vk, vl]) => box.appendChild(opt(vl, KEYS.voice_active === vk, async () => {
+        await fetch("/api/keys", {method:"POST", body: JSON.stringify({voice_service: vk})}); loadKeys(); voiceStatus(); })));
+    }
+    if (k === "size") SIZES.forEach(([l, v]) => box.appendChild(opt(l, Math.abs((SET.scale || 0.85) - v) < 0.03, () => setSetting("scale", v))));
+    if (k === "system"){
+      box.appendChild(opt("MICROPHONE: " + (SET.voice ? "ON" : "OFF (nothing is captured)"), SET.voice, () => setSetting("voice", !SET.voice)));
+      box.appendChild(opt("WAKE WORDS: " + (SET.wake_mode === "name" ? "NAME ONLY (Capri)" : "HEY / CAPRI / CALL"), SET.wake_mode === "name", () => setSetting("wake_mode", SET.wake_mode === "name" ? "any" : "name")));
+      box.appendChild(opt("TEXT BACKGROUND: " + (SET.text_bg ? "ON (black behind text)" : "OFF (see-through)"), !!SET.text_bg, () => setSetting("text_bg", !SET.text_bg)));
+      box.appendChild(opt("GLITCH AROUND: " + (SET.roam ? "ON" : "OFF"), SET.roam, () => setSetting("roam", !SET.roam)));
+    }
+    c.appendChild(box);
+  });
+  const foot = document.createElement("div"); foot.className = "cm-foot";
+  const tm = document.createElement("div"); tm.className = "cm-time"; tm.textContent = new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+  const cl = document.createElement("div"); cl.className = "cm-close"; cl.textContent = "CLOSE"; cl.onclick = () => cfgToggle(false);
+  foot.appendChild(tm); foot.appendChild(cl); c.appendChild(foot);
+  // microphone switch on the call screen + the little mic button
+  document.body.classList.toggle("textbg", !!SET.text_bg);
+  $("#micTog").textContent = "MIC: " + (SET.voice ? "ON" : "OFF"); $("#micTog").classList.toggle("off", !SET.voice); $("#mic").classList.toggle("off", !SET.voice);
+}
+async function cfgToggle(on){
+  const open = on === undefined ? !$("#cfg").classList.contains("on") : on;
+  if (open){ try{ await fetch("/api/menu", {method:"POST", body: JSON.stringify({w: 340})}); }catch(e){} voiceStatus(); loadKeys(); renderCfg(); $("#cfg").classList.add("on"); }
+  else { $("#cfg").classList.remove("on"); try{ await fetch("/api/menu", {method:"POST", body: JSON.stringify({w: 0})}); }catch(e){} }
+}
+document.addEventListener("contextmenu", e => { e.preventDefault(); cfgToggle(); });
+$("#modechip").onclick = () => cfgToggle();
+$("#micTog").onclick = () => setSetting("voice", !SET.voice);
+document.addEventListener("keydown", e => { if (e.key === "Escape") cfgToggle(false); });
+fetch("/api/settings").then(r => r.json()).then(s => { SET = s; micMuted = !SET.voice; renderCfg(); }).catch(() => renderCfg());
+
+/* ---------- she has a mind of her own: every minute or so (when idle) she glitches to another spot ---------- */
+const ROAM_QUIPS = ["New spot. Better view, choom.", "Hah-hah! Miss me?", "Bored. Moving.", "Don't mind me, just haunting your screen.", "Teleported. You're welcome.", "Psst. Say 'Hey Capri' if you need me.", "Glitching around, choom."];
+window.roamOut = () => { glitch($("#root"), 470); setTimeout(() => { $("#root").style.opacity = 0; }, 380); };
+window.roamIn = () => { $("#root").style.opacity = 1; glitch($("#root"), 520); if (Math.random() < .7 && view === "call") setTimeout(() => showBubble("", [], ROAM_QUIPS[(Math.random() * ROAM_QUIPS.length) | 0]), 400); };
+let lastPing = 0;
+["pointerdown", "keydown", "pointermove"].forEach(ev => addEventListener(ev, () => { const n = Date.now(); if (n - lastPing > 8000){ lastPing = n; fetch("/api/ping", {method:"POST", body:"{}"}).catch(() => {}); } }, {passive: true}));
+
+/* ---------- boot: she opens on the call screen, glitching in ---------- */
+show("dormant");
+setCallMode("idle"); paintCallBtn();
+glitch($("#callview"), 1100);
+</script>
+</body>
+</html>

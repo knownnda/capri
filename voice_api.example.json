@@ -1,0 +1,20 @@
+{
+  "_help": "Copy this file to voice_api.json, pick one with \"active\", add your key, then right-click Capri > VOICE > API VOICE. voice_api.json is git-ignored.",
+  "active": "openai",
+  "openai": {
+    "type": "openai",
+    "base_url": "https://api.openai.com/v1",
+    "model": "gpt-4o-mini-tts",
+    "voice": "nova",
+    "instructions": "Speak as Capri: a confident, playful, slightly cocky young woman from a cyberpunk city. Quick, punchy delivery with a smirk in her voice.",
+    "api_key_env": "OPENAI_API_KEY",
+    "api_key": "PUT_YOUR_KEY_HERE"
+  },
+  "elevenlabs": {
+    "type": "elevenlabs",
+    "voice_id": "PUT_A_VOICE_ID_FROM_YOUR_ELEVENLABS_VOICE_LIBRARY",
+    "model": "eleven_flash_v2_5",
+    "api_key_env": "ELEVENLABS_API_KEY",
+    "api_key": "PUT_YOUR_KEY_HERE"
+  }
+}

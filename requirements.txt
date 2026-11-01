@@ -1,0 +1,29 @@
+pyautogui
+pyperclip
+pillow
+requests
+yt-dlp
+spotipy
+faster-whisper
+PySide6
+sounddevice
+python-docx
+mss
+imageio-ffmpeg
+soundcard
+ytmusicapi
+spotapi
+websockets>=12
+pymongo
+redis
+PyAudioWPatch
+TikTokLive
+numpy
+winrt-runtime; sys_platform == 'win32'
+winrt-Windows.Media.Ocr; sys_platform == 'win32'
+winrt-Windows.Graphics.Imaging; sys_platform == 'win32'
+winrt-Windows.Security.Cryptography; sys_platform == 'win32'
+winrt-Windows.Foundation; sys_platform == 'win32'
+winrt-Windows.Foundation.Collections; sys_platform == 'win32'
+winrt-Windows.Globalization; sys_platform == 'win32'
+winrt-Windows.Storage.Streams; sys_platform == 'win32'

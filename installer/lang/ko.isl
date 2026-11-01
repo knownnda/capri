@@ -1,0 +1,31 @@
+﻿; Capri setup strings (ko)
+[CustomMessages]
+TypeCustom=설치할 항목 선택
+CompCore=Capri (필수)
+CompBrain=AI 두뇌: Ollama + 로컬 AI 모델 (약 2 GB 다운로드)
+CompEars=귀: 음성 인식 모델 (약 500 MB)
+CompVoice=목소리: 당신의 언어로 말하는 음성 (약 60 MB)
+CompMinecraft=마인크래프트 오토파일럿: 자바 에디션을 대신 플레이
+CompSpotify=Spotify 자동 재생 설정 (웹 플레이어 쿠키 하나만 붙여넣기)
+TaskStartup=Windows 시작 시 Capri를 트레이에 숨겨서 실행 ('Hey Capri'를 듣고 있음)
+IconMate=바탕화면의 Capri (데스크톱 메이트)
+IconCheck=Capri 준비 상태 확인
+IconRepair=Capri 구성 요소 복구 - 다시 다운로드
+StPython=Python 설치 중...
+StOllama=Ollama (Capri의 두뇌) 설치 중...
+StSetup=Capri 설정 중: 다운로드 진행은 검은 창에 표시돼요. 시간이 좀 걸릴 수 있어, 춤...
+RunMinecraft=지금 마인크래프트 오토파일럿 설정
+RunSpotify=지금 Spotify 연결
+WelcomeLang=Capri는 이 설치에서 선택한 언어로 말하고 듣습니다. 나중에 변경 가능: Capri 우클릭 > LANGUAGE.
+DownloadDesc=Capri에게 필요한 것을 다운로드하는 중...
+DownloadFailed=인터넷 연결을 확인하고 다시 시도하세요.
+PiTitle=CAPRI // 설치
+PiApp=Capri 다운로드 중
+PiPackages=Python 패키지 설치 중
+PiBrain=AI 두뇌 다운로드 중
+PiEars=귀(음성 인식) 다운로드 중
+PiVoice=목소리 다운로드 중
+PiOk=OK
+PiFailed=실패 (자세한 내용은 install_log.txt)
+PiDone=Capri 준비 완료. 'Hey Capri'라고 말해봐.
+PiClose=Enter 키를 눌러 이 창을 닫으세요.

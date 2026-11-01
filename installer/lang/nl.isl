@@ -1,0 +1,31 @@
+﻿; Capri setup strings (nl)
+[CustomMessages]
+TypeCustom=Kies wat je wilt installeren
+CompCore=Capri (verplicht)
+CompBrain=AI-brein: Ollama + een lokaal AI-model (ongeveer 2 GB download)
+CompEars=Oren: spraakherkenningsmodel (ongeveer 500 MB)
+CompVoice=Stem: een stem in jouw taal (ongeveer 60 MB)
+CompMinecraft=Minecraft-autopiloot: zij speelt Java Edition voor je
+CompSpotify=Spotify automatisch afspelen (plak gewoon één cookie uit de webplayer)
+TaskStartup=Capri verborgen in het systeemvak starten met Windows (luistert naar 'Hey Capri')
+IconMate=Capri op je bureaublad (desktop mate)
+IconCheck=Capri-controle
+IconRepair=Onderdelen van Capri herstellen - opnieuw downloaden
+StPython=Python installeren...
+StOllama=Ollama installeren (Capri's brein)...
+StSetup=Capri instellen: de downloads zie je in het zwarte venster. Dit kan even duren, choom...
+RunMinecraft=Minecraft-autopiloot nu instellen
+RunSpotify=Spotify nu koppelen
+WelcomeLang=Capri praat en luistert in de taal die je voor deze installatie hebt gekozen. Later te wijzigen: rechtsklik op Capri > LANGUAGE.
+DownloadDesc=Downloaden wat Capri nodig heeft...
+DownloadFailed=Controleer je internetverbinding en probeer het opnieuw.
+PiTitle=CAPRI // INSTALLATIE
+PiApp=Capri downloaden
+PiPackages=Haar Python-pakketten installeren
+PiBrain=Haar AI-brein downloaden
+PiEars=Haar oren downloaden (spraakherkenning)
+PiVoice=Haar stem downloaden
+PiOk=OK
+PiFailed=MISLUKT (details in install_log.txt)
+PiDone=Capri is klaar. Zeg 'Hey Capri'.
+PiClose=Druk op Enter om dit venster te sluiten.

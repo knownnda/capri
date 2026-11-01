@@ -1,0 +1,31 @@
+﻿; Capri setup strings (zh)
+[CustomMessages]
+TypeCustom=选择要安装的内容
+CompCore=Capri（必需）
+CompBrain=AI 大脑：Ollama + 本地 AI 模型（约 2 GB 下载）
+CompEars=耳朵：语音识别模型（约 500 MB）
+CompVoice=声音：说你的语言的语音（约 60 MB）
+CompMinecraft=Minecraft 自动驾驶：她替你玩 Java 版
+CompSpotify=Spotify 自动播放设置（只需粘贴网页播放器的一个 Cookie）
+TaskStartup=随 Windows 启动，把 Capri 隐藏在托盘里（监听“Hey Capri”）
+IconMate=桌面上的 Capri（桌面伙伴）
+IconCheck=Capri 就绪检查
+IconRepair=修复 - 重新下载 Capri 的组件
+StPython=正在安装 Python...
+StOllama=正在安装 Ollama（Capri 的大脑）...
+StSetup=正在设置 Capri：下载进度显示在黑色窗口里。可能需要一会儿，伙计...
+RunMinecraft=现在设置 Minecraft 自动驾驶
+RunSpotify=现在连接 Spotify
+WelcomeLang=Capri 会用你为本次安装选择的语言说话和聆听。以后可以更改：右键点击 Capri > LANGUAGE。
+DownloadDesc=正在下载 Capri 需要的东西...
+DownloadFailed=请检查网络连接后重试。
+PiTitle=CAPRI // 安装
+PiApp=正在下载 Capri
+PiPackages=正在安装她的 Python 包
+PiBrain=正在下载她的 AI 大脑
+PiEars=正在下载她的耳朵（语音识别）
+PiVoice=正在下载她的声音
+PiOk=完成
+PiFailed=失败（详情见 install_log.txt）
+PiDone=Capri 准备好了。说“Hey Capri”。
+PiClose=按 Enter 关闭此窗口。

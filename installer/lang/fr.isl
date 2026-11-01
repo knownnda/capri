@@ -1,0 +1,31 @@
+﻿; Capri setup strings (fr)
+[CustomMessages]
+TypeCustom=Choisis ce qu'il faut installer
+CompCore=Capri (obligatoire)
+CompBrain=Cerveau IA : Ollama + un modèle IA local (environ 2 Go à télécharger)
+CompEars=Oreilles : modèle de reconnaissance vocale (environ 500 Mo)
+CompVoice=Voix : une voix qui parle ta langue (environ 60 Mo)
+CompMinecraft=Pilote automatique Minecraft : elle joue à l'édition Java pour toi
+CompSpotify=Lecture automatique Spotify (colle juste un cookie du lecteur web)
+TaskStartup=Lancer Capri cachée dans la barre des tâches au démarrage de Windows (elle écoute « Hey Capri »)
+IconMate=Capri sur ton bureau (desktop mate)
+IconCheck=Vérification de Capri
+IconRepair=Réparer - retélécharger les éléments de Capri
+StPython=Installation de Python...
+StOllama=Installation d'Ollama (le cerveau de Capri)...
+StSetup=Configuration de Capri : les téléchargements s'affichent dans la fenêtre noire. Ça peut prendre un moment, choom...
+RunMinecraft=Configurer le pilote automatique Minecraft maintenant
+RunSpotify=Connecter Spotify maintenant
+WelcomeLang=Capri parlera et écoutera dans la langue que tu as choisie pour cette installation. Tu pourras la changer plus tard : clic droit sur Capri > LANGUAGE.
+DownloadDesc=Téléchargement de ce dont Capri a besoin...
+DownloadFailed=Vérifie ta connexion internet et réessaie.
+PiTitle=CAPRI // INSTALLATION
+PiApp=Téléchargement de Capri
+PiPackages=Installation de ses paquets Python
+PiBrain=Téléchargement de son cerveau IA
+PiEars=Téléchargement de ses oreilles (reconnaissance vocale)
+PiVoice=Téléchargement de sa voix
+PiOk=OK
+PiFailed=ÉCHEC (détails dans install_log.txt)
+PiDone=Capri est prête. Dis « Hey Capri ».
+PiClose=Appuie sur Entrée pour fermer cette fenêtre.

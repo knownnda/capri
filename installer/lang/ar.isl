@@ -1,0 +1,31 @@
+﻿; Capri setup strings (ar)
+[CustomMessages]
+TypeCustom=اختر ما تريد تثبيته
+CompCore=Capri (مطلوب)
+CompBrain=عقل الذكاء الاصطناعي: Ollama + نموذج ذكاء اصطناعي محلي (تنزيل نحو 2 جيجابايت)
+CompEars=الأذنان: نموذج التعرف على الكلام (نحو 500 ميجابايت)
+CompVoice=الصوت: صوت يتحدث بلغتك (نحو 60 ميجابايت)
+CompMinecraft=الطيار الآلي في ماينكرافت: تلعب نسخة Java بدلًا منك
+CompSpotify=إعداد التشغيل التلقائي في Spotify (فقط الصق ملف تعريف ارتباط واحد من مشغل الويب)
+TaskStartup=تشغيل Capri مخفية في شريط المهام مع Windows (تستمع إلى «Hey Capri»)
+IconMate=Capri على سطح المكتب (desktop mate)
+IconCheck=فحص جاهزية Capri
+IconRepair=إصلاح - إعادة تنزيل أجزاء Capri
+StPython=جارٍ تثبيت Python...
+StOllama=جارٍ تثبيت Ollama (عقل Capri)...
+StSetup=جارٍ إعداد Capri: تظهر التنزيلات في النافذة السوداء. قد يستغرق ذلك بعض الوقت يا تشوم...
+RunMinecraft=إعداد الطيار الآلي في ماينكرافت الآن
+RunSpotify=ربط Spotify الآن
+WelcomeLang=ستتحدث Capri وتستمع باللغة التي اخترتها لهذا التثبيت. يمكنك تغييرها لاحقًا: انقر بزر الماوس الأيمن على Capri > LANGUAGE.
+DownloadDesc=جارٍ تنزيل ما تحتاجه Capri...
+DownloadFailed=تحقق من اتصالك بالإنترنت وحاول مرة أخرى.
+PiTitle=CAPRI // التثبيت
+PiApp=جارٍ تنزيل Capri
+PiPackages=جارٍ تثبيت حزم Python الخاصة بها
+PiBrain=جارٍ تنزيل عقلها الذكي
+PiEars=جارٍ تنزيل أذنيها (التعرف على الكلام)
+PiVoice=جارٍ تنزيل صوتها
+PiOk=تم
+PiFailed=فشل (التفاصيل في install_log.txt)
+PiDone=Capri جاهزة. قل «Hey Capri».
+PiClose=اضغط Enter لإغلاق هذه النافذة.

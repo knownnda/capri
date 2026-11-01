@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>FLATLINED</title>
+<!-- The flatline screen. ?action=restart  -> the cursor drops to LOAD LAST CHECKPOINT, it lights up, the PC restarts
+                         ?action=shutdown -> EXIT TO MAIN MENU lights up, the PC powers off
+                         ?action=show     -> CONTINUE lights up, the screen closes (nothing happens to the PC)
+     Timeline follows the reference video: warning -> CRITICAL SYSTEM FAILURE -> FATAL BRAIN DAMAGE / FLATLINED -> the menu.
+     ESC or a click aborts (restart / shutdown are cancelled). Sound: flatline_cp.mp3 (the reference video's audio). -->
+<style>
+@font-face{font-family:Rajdhani;font-weight:500;src:url(fonts/rajdhani-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:Rajdhani;font-weight:600;src:url(fonts/rajdhani-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:Rajdhani;font-weight:700;src:url(fonts/rajdhani-latin-700-normal.woff2) format("woff2")}
+:root{--red:#ff4d45;--red2:#ff6a5e;--dim:#b8352f;--bar:#c42f2a;--navy:#0a0d18}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;cursor:none;background:#000;font-family:Rajdhani,"Bahnschrift","Segoe UI",sans-serif;color:var(--red)}
+#scene{position:fixed;inset:0;background:var(--navy);opacity:0;transition:opacity .25s}
+#scene.on{opacity:1}
+/* background: navy, red bleeding in from the top, faint digital columns */
+#tint{position:absolute;inset:0;opacity:0;transition:opacity .7s;background:linear-gradient(180deg,#2c0a11 0%,#260b14 30%,#1a0c18 58%,#0e1020 100%)}
+#tint.on{opacity:1}
+#noise{position:absolute;inset:0;opacity:.55;mix-blend-mode:screen}
+.scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(0,0,0,.18) 2px 3px);opacity:.5}
+.glow{text-shadow:0 0 .35em rgba(255,60,50,.65),0 0 1.2em rgba(255,40,40,.35)}
+.tiny{font-size:max(9px,1.05vh);letter-spacing:.06em;color:var(--dim);font-weight:600;white-space:nowrap}
+.hide{opacity:0!important}
+
+/* ---------------- phase 1: CRITICAL SYSTEM FAILURE (centre) ---------------- */
+#p1{position:absolute;left:50%;top:0;width:24vw;transform:translateX(-50%);transition:opacity .18s}
+#tri{position:absolute;left:50%;top:34.6vh;width:2.6vh;transform:translateX(-50%)}
+#tri svg{width:100%;display:block;filter:drop-shadow(0 0 .5vh rgba(255,60,50,.8))}
+#tri .tiny{position:absolute;left:50%;top:100%;transform:translateX(-50%);font-size:max(7px,.8vh)}
+#crit{position:absolute;left:50%;top:42.4vh;height:2.3vh;width:0;transform:translateX(-50%);background:var(--red);box-shadow:0 0 1.4vh rgba(255,60,50,.7);
+  transition:width .18s ease-out;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#crit span{font-size:1.35vh;font-weight:700;letter-spacing:.12em;color:#3a0707;opacity:0;transition:opacity .1s;white-space:nowrap}
+#crit.lbl span{opacity:1}
+#critlines{position:absolute;left:50%;top:48.6vh;transform:translateX(-50%);width:16vw;opacity:0}
+#critlines div{height:.25vh;background:var(--dim);margin:.45vh 0;opacity:.8}
+#panel{position:absolute;left:50%;top:53.5vh;width:23.5vw;transform:translateX(-50%);opacity:0}
+#panel .row{display:flex;align-items:center;gap:.6vw;border:1px solid rgba(255,77,69,.55);height:2.3vh;padding:0 .4vw}
+#panel .row i{display:block;height:.9vh;width:0;background:var(--red);box-shadow:0 0 .8vh rgba(255,60,50,.7);transition:width .55s linear}
+#panel .row b{font-size:1vh;color:var(--dim);font-weight:700;letter-spacing:.1em}
+#panel .boxes{display:flex;gap:.5vw;margin-top:1.2vh}
+#panel .boxes div{border:1px solid rgba(255,77,69,.4);height:5.4vh;background:rgba(80,10,15,.25)}
+#panel .boxes .a{width:2.6vw;display:flex;align-items:center;justify-content:center;font-size:.9vh;color:var(--dim);text-align:center}
+#panel .boxes .b{flex:1;padding:.6vh .6vw}
+#panel .boxes .b svg{width:1.8vh;float:left;margin-right:.5vw;opacity:0;transition:opacity .15s}
+#panel .boxes .b .tiny{display:block;opacity:0;transition:opacity .15s}
+#panel.full .boxes .b svg,#panel.full .boxes .b .tiny{opacity:1}
+#chip{position:absolute;right:1.6vw;bottom:1.2vh;opacity:0;text-align:right}
+#chip .bx{display:inline-block;border:1px solid var(--red);padding:.3vh .5vw;font-size:1.05vh;font-weight:700;letter-spacing:.08em;margin-top:.4vh}
+
+/* ---------------- phase 2: FATAL BRAIN DAMAGE / FLATLINED (centre) ---------------- */
+#p2{position:absolute;inset:0;opacity:0;transition:transform .32s cubic-bezier(.5,0,.2,1)}
+#p2.slide{transform:translateX(-5.2vw)}
+#skull2{position:absolute;left:23.4vw;top:34.6vh;width:3.9vw}
+#skull2 .c{font-size:max(8px,1vh);color:var(--red);opacity:.85;margin-top:.2vh;white-space:nowrap}
+#tag{position:absolute;left:35.3vw;top:32.4vh;height:2.5vh;width:0;background:var(--red);box-shadow:0 0 1.2vh rgba(255,60,50,.6);transition:width .2s;overflow:hidden}
+#tag span{display:block;font-size:1.5vh;font-weight:700;letter-spacing:.1em;color:#3a0707;padding:.35vh .5vw;white-space:nowrap}
+#tc{position:absolute;left:62.5vw;top:31.8vh;font-size:max(8px,1.05vh);color:var(--red);font-weight:700;letter-spacing:.06em;opacity:0;line-height:1.25}
+#box{position:absolute;left:35.3vw;top:35.4vh;width:0;height:11.6vh;border:2px solid rgba(255,77,69,.85);border-left-width:2px;transition:width .2s ease-out;overflow:hidden}
+#box .fl{position:absolute;left:1.2vw;top:44%;transform:translateY(-50%);font-size:8.6vh;font-weight:700;letter-spacing:.02em;line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(255,77,69,.75);white-space:nowrap}
+#box.lit .fl{color:var(--red2);-webkit-text-stroke:0;text-shadow:0 0 .3em rgba(255,60,50,.7),0 0 1em rgba(255,40,40,.4)}
+#box .sub{position:absolute;left:1.2vw;bottom:.6vh;font-size:.8vh;color:var(--dim);letter-spacing:.1em;opacity:.8}
+
+/* ---------------- phase 3: the menu (left) ---------------- */
+#p3{position:absolute;inset:0;opacity:0}
+#band{position:absolute;left:7vw;top:0;bottom:0;width:24vw;opacity:0;transition:opacity .45s;
+  background:linear-gradient(90deg,rgba(150,120,125,.20),rgba(140,105,112,.14) 22%,rgba(110,80,90,.07) 60%,rgba(0,0,0,0));filter:blur(1px)}
+#band:after{content:"";position:absolute;left:0;top:0;bottom:0;width:5vw;background:linear-gradient(90deg,rgba(190,160,165,.12),rgba(0,0,0,0))}
+#band.on{opacity:1}
+#tl,#tr{position:absolute;top:2.1vh}
+#tl{left:2.35vw}#tr{right:2.7vw;text-align:right}
+#tl .bar,#tr .bar{height:1.6vh;background:var(--bar);opacity:.85}
+#tl .bar{width:9.2vw}#tr .bar{width:13vw;margin-left:auto}
+.rows{margin-top:.6vh}.rows div{margin:.55vh 0}
+#skull{position:absolute;left:4.7vw;top:34.4vh;width:3.9vw}
+#skull img,#skull2 img{width:100%;display:block;filter:drop-shadow(0 0 .6vh rgba(255,60,50,.55))}
+#codec{position:absolute;left:4.05vw;top:44.6vh;font-size:max(9px,1.12vh);color:var(--red);opacity:.85;letter-spacing:.04em}
+#title{position:absolute;left:10.35vw;top:35.6vh;font-size:8.2vh;font-weight:700;line-height:1;letter-spacing:.01em;color:var(--red2)}
+#menu{position:absolute;left:9.85vw;top:47.6vh;margin:0;padding:0;list-style:none}
+#menu li{position:relative;height:6vh;display:flex;align-items:center;font-size:2.75vh;font-weight:600;letter-spacing:.015em;color:var(--red);opacity:.35;transition:opacity .25s,color .12s}
+#menu.on li{opacity:.92}
+#menu li .hl{position:absolute;left:-1.1vw;top:.7vh;bottom:.7vh;width:0;background:linear-gradient(90deg,rgba(255,77,69,.38),rgba(255,77,69,.10) 70%,rgba(255,77,69,0));
+  border-left:3px solid var(--red2);opacity:0;transition:width .18s ease-out,opacity .12s}
+#menu li.sel{opacity:1;color:#ffb3ac;text-shadow:0 0 .35em rgba(255,70,60,.8)}
+#menu li.sel .hl{opacity:1;width:24vw}
+#menu li.press{color:#fff;text-shadow:0 0 .4em #ff5a50,0 0 1.2em #ff2a2a}
+#menu li.press .hl{background:linear-gradient(90deg,rgba(255,110,100,.85),rgba(255,77,69,.45) 60%,rgba(255,77,69,0));animation:pressflash .5s steps(2) 2}
+@keyframes pressflash{50%{filter:brightness(2.2)}}
+#menu li span{position:relative}
+#bl{position:absolute;left:2.4vw;bottom:2.4vh}
+#bl .ln{height:.2vh;width:6vw;background:var(--dim);margin-bottom:2.6vh;opacity:.6}
+
+/* ---------------- glitch / end ---------------- */
+.glitch{animation:gl .16s steps(2) 1}
+@keyframes gl{0%{transform:translate(1.2vw,-.4vh);clip-path:inset(12% 0 55% 0);filter:hue-rotate(-20deg) saturate(2)}
+  50%{transform:translate(-1.4vw,.5vh);clip-path:inset(48% 0 18% 0)}100%{transform:none;clip-path:none}}
+#black{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .45s}
+#black.on{opacity:1}
+#crt{position:fixed;left:0;right:0;top:50%;height:0;background:#ffd9d4;box-shadow:0 0 3vh #ff5a50;opacity:0;transform:translateY(-50%)}
+</style></head>
+<body>
+<div id="scene">
+  <div id="tint"></div><canvas id="noise"></canvas>
+
+  <!-- phase 1 -->
+  <div id="p1">
+    <div id="tri"><svg viewBox="0 0 24 21"><path d="M12 1 L23 20 H1 Z" fill="none" stroke="#ff4d45" stroke-width="1.6"/><rect x="11.1" y="7" width="1.8" height="7" fill="#ff4d45"/><rect x="11.1" y="15.6" width="1.8" height="1.8" fill="#ff4d45"/></svg><div class="tiny">ATTENTION</div></div>
+    <div id="crit"><span>CRITICAL SYSTEM FAILURE</span></div>
+    <div id="critlines"><div style="width:100%"></div><div style="width:82%"></div><div style="width:64%"></div></div>
+    <div id="panel">
+      <div class="row"><b>SYS</b><i id="prog"></i><b style="margin-left:auto">ERR</b></div>
+      <div class="boxes"><div class="a">FATAL<br>ERROR</div>
+        <div class="b"><svg viewBox="0 0 24 21"><path d="M12 1 L23 20 H1 Z" fill="none" stroke="#ff4d45" stroke-width="1.6"/><rect x="11.1" y="7" width="1.8" height="7" fill="#ff4d45"/></svg>
+          <span class="tiny">NEURAL LINK INTERRUPTED</span><span class="tiny">VITAL SIGNS: NONE DETECTED</span></div></div>
+    </div>
+  </div>
+  <div id="chip"><div class="tiny">MONITORING: NO CONNECTION</div><div class="bx">BIOMON 0x00</div></div>
+
+  <!-- phase 2 -->
+  <div id="p2">
+    <div id="skull2"></div>
+    <div id="tag"><span>FATAL BRAIN DAMAGE</span></div>
+    <div id="tc">TRAUMA RESPONSE<br>MEDICAL CENTER</div>
+    <div id="box"><div class="fl">FLATLINED</div><div class="sub">SUBJECT STATUS: NO VITAL SIGNS</div></div>
+  </div>
+
+  <div id="hud" style="position:absolute;inset:0;opacity:0;transition:opacity .2s">
+    <div id="tl"><div class="bar"></div><div class="rows tiny"><div>CONNECTION LOST</div><div>00 &nbsp; 0000 X 0000 &nbsp; 0 X0000000</div><div>00 &nbsp; 0000 X 0000 &nbsp; 0 X0000000</div><div>&nbsp;</div><div>00 &nbsp; 0000 X 0000 &nbsp; 0 X0000000</div></div></div>
+    <div id="tr"><div class="bar"></div><div class="rows tiny"><div>LINK CRITICAL ERROR // SIGNAL TERMINATED</div><div>00 &nbsp; 0000 X 0000 &nbsp; 0 X0000000</div><div>00 &nbsp; 0000 X 0000 &nbsp; 0 X0000000</div><div>&nbsp;</div><div>00 &nbsp; 0000 X 0000 &nbsp; 0 X0000000</div></div></div>
+  </div>
+  <!-- phase 3 -->
+  <div id="p3">
+    <div id="band"></div>
+    <div id="skull"></div>
+    <div id="codec">コーデック 0.00052</div>
+    <div id="title" class="glow">FLATLINED</div>
+    <ul id="menu">
+      <li data-k="show"><i class="hl"></i><span>CONTINUE</span></li>
+      <li data-k="restart"><i class="hl"></i><span>LOAD LAST CHECKPOINT</span></li>
+      <li data-k="load"><i class="hl"></i><span>LOAD GAME</span></li>
+      <li data-k="settings"><i class="hl"></i><span>SETTINGS</span></li>
+      <li data-k="shutdown"><i class="hl"></i><span>EXIT TO MAIN MENU</span></li>
+    </ul>
+    <div id="bl"><div class="ln"></div><div class="tiny">FATAL SYSTEM ERROR // CODE 0x00000000</div><div class="tiny">SUBJECT 001 // NO RESPONSE</div></div>
+  </div>
+  <div class="scan"></div>
+</div>
+<div id="crt"></div><div id="black"></div>
+
+<script>
+const Q = new URLSearchParams(location.search);
+const ACTION = ["restart", "shutdown", "show"].includes(Q.get("action")) ? Q.get("action") : "show";
+const $ = id => document.getElementById(id);
+const SKULL = `<img src="flatline_skull.png" alt="">`;   /* the skull from the reference video */
+$("skull").innerHTML = SKULL; $("skull2").innerHTML = SKULL + '<div class="c">コーデック 0.00052</div>';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let aborted = false, ac = null, audioEl = null;
+
+/* ---------------- background: faint flickering digital columns ---------------- */
+const cv = $("noise"), g = cv.getContext("2d"); let W, H;
+function fit(){ W = cv.width = innerWidth; H = cv.height = innerHeight; } fit(); addEventListener("resize", fit);
+const cols = Array.from({length: 46}, () => ({x: Math.random(), w: 2 + Math.random() * 10, seed: Math.random() * 1000}));
+function drawNoise(t){
+  g.clearRect(0, 0, W, H);
+  for (const c of cols){
+    const x = c.x * W;
+    for (let y = 0; y < H; y += 7){
+      const n = Math.sin(c.seed + y * 0.37 + Math.floor(t / 140) * 0.9) * Math.sin(c.seed * 1.7 + y * 0.11);
+      if (n > 0.55){ g.fillStyle = `rgba(${60 + n * 60},${20 + n * 15},${32 + n * 20},${0.05 + n * 0.10})`; g.fillRect(x, y, c.w, 4); }
+    }
+  }
+  requestAnimationFrame(drawNoise);
+}
+requestAnimationFrame(drawNoise);
+
+/* ---------------- sound ---------------- */
+function tick(f = 1900, d = 0.035, v = 0.08){
+  try{ ac = ac || new AudioContext(); const o = ac.createOscillator(), gn = ac.createGain(); o.type = "square"; o.frequency.value = f;
+    o.connect(gn); gn.connect(ac.destination); const t = ac.currentTime; gn.gain.setValueAtTime(v, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + d); o.start(t); o.stop(t + d + 0.02); }catch(e){}
+}
+function confirmSound(){ tick(880, 0.12, 0.12); setTimeout(() => tick(1320, 0.18, 0.1), 90); }
+
+function glitch(el){ el.classList.remove("glitch"); void el.offsetWidth; el.classList.add("glitch"); }
+function post(action){ return fetch("/api/flatline", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({action})}).catch(() => {}); }
+
+async function run(){
+  audioEl = new Audio("flatline_cp.mp3"); audioEl.volume = 1.0; audioEl.play().catch(() => {});
+  $("scene").classList.add("on");
+  /* 0.00 warning triangle */
+  await sleep(60);
+  /* 0.17 red bar grows */
+  await sleep(110); $("crit").style.width = "13.2vw";
+  /* 0.33 label + lines */
+  await sleep(170); $("crit").classList.add("lbl"); $("critlines").style.opacity = .85; glitch($("p1"));
+  /* 0.50 panel + bottom-right chip */
+  await sleep(170); $("panel").style.opacity = 1; $("chip").style.opacity = 1; $("prog").style.width = "62%";
+  /* 0.67 the red bleeds in */
+  await sleep(170); $("tint").classList.add("on");
+  /* 0.85 panel fills */
+  await sleep(180); $("panel").classList.add("full"); $("prog").style.width = "88%";
+  await sleep(230); glitch($("p1"));
+  /* 1.20 fade the failure panel */
+  await sleep(90); $("p1").style.opacity = .25; $("chip").style.opacity = 0;
+  /* 1.33 skull */
+  await sleep(130); $("p1").style.opacity = 0; $("p2").style.opacity = 1; $("tag").style.width = 0; glitch($("p2"));
+  /* 1.50 FATAL BRAIN DAMAGE + the box */
+  await sleep(170); $("tag").style.width = "19.8vw"; $("box").style.width = "25vw"; $("tc").style.opacity = 1; $("hud").style.opacity = 1;
+  /* 1.80 FLATLINED lights up, the group starts sliding left */
+  await sleep(300); $("box").classList.add("lit"); glitch($("box"));
+  await sleep(110); $("p2").classList.add("slide");
+  /* 2.15 cut to the menu screen */
+  await sleep(240); glitch($("scene")); $("p2").style.opacity = 0; $("p3").style.opacity = 1;
+  await sleep(170); $("band").classList.add("on"); $("menu").classList.add("on");
+  if (aborted) return;
+
+  /* ---- the choice: cursor appears, walks down to the option, lights it up ---- */
+  const items = [...document.querySelectorAll("#menu li")];
+  const target = items.findIndex(li => li.dataset.k === ACTION);
+  await sleep(1300);
+  let i = 0; items[0].classList.add("sel"); tick();
+  while (i < target){
+    await sleep(430); if (aborted) return;
+    items[i].classList.remove("sel"); i++; items[i].classList.add("sel"); tick();
+  }
+  await sleep(650); if (aborted) return;
+  items[i].classList.add("press"); confirmSound();
+  await sleep(900); if (aborted) return;
+
+  if (ACTION === "show"){
+    $("black").classList.add("on"); fadeAudio(700); await sleep(600); post("close"); return;
+  }
+  /* restart / shutdown: the screen collapses like a dying monitor, then the PC goes */
+  glitch($("scene")); await sleep(160);
+  $("scene").style.transition = "transform .28s ease-in, opacity .28s"; $("scene").style.transform = "scaleY(.004)";
+  const crt = $("crt"); crt.style.transition = "opacity .1s, height .25s"; crt.style.opacity = 1; crt.style.height = "2px";
+  await sleep(300); crt.style.transition = "width .25s, opacity .25s, left .25s"; crt.style.left = "50%"; crt.style.right = "50%"; crt.style.opacity = 0;
+  $("black").classList.add("on"); fadeAudio(500);
+  await sleep(500); if (!aborted) post("go");
+}
+function fadeAudio(ms){ if (!audioEl) return; const v0 = audioEl.volume, t0 = performance.now();
+  const f = () => { const k = Math.min(1, (performance.now() - t0) / ms); audioEl.volume = v0 * (1 - k); if (k < 1) requestAnimationFrame(f); }; f(); }
+
+/* abort: ESC or click (restart / shutdown are cancelled) */
+function abort(){ if (aborted) return; aborted = true; fadeAudio(300); $("black").classList.add("on"); post("abort"); }
+addEventListener("keydown", e => { if (e.key === "Escape") abort(); });
+addEventListener("mousedown", abort);
+
+document.fonts && document.fonts.ready ? document.fonts.ready.then(run) : run();
+</script>
+</body></html>
