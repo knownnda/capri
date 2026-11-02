@@ -393,7 +393,6 @@ Capri is built on some great open-source projects. Huge thanks to their creators
 | Project | Used for |
 |---|---|
 | [SpotAPI](https://github.com/Aran404/SpotAPI) by [Aran404](https://github.com/Aran404) | Spotify auto-play without a developer account |
-| [TikTokLive](https://github.com/isaackogan/TikTokLive) by [isaackogan](https://github.com/isaackogan) | Reading TikTok LIVE chat in stream mode |
 | [Ollama](https://github.com/ollama/ollama) | Running her AI brain locally |
 | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) | Local speech recognition |
 | [Piper](https://github.com/rhasspy/piper) | Her local spoken voice |
