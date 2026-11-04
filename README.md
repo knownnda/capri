@@ -222,7 +222,6 @@ Right-click Capri > **VOICE** and pick one. **TEST HER VOICE** plays a line stra
 
   The first reply after starting can take a while while the voice engine loads.
 
-On stream, the overlay uses the same voice. With BEEPS, tick **"Control audio via OBS"** on the Capri overlay source so viewers hear her.
 
 ### Minecraft autopilot (no mods, Java Edition)
 
@@ -235,16 +234,6 @@ On stream, the overlay uses the same voice. With BEEPS, tick **"Control audio vi
 **To stop her: say "stop" or "my turn", press F8, or just click another window.** Every key press first checks that Minecraft is the active window.
 
 Honest limits: she plays by eye, so she's slower and clumsier than a human, she doesn't craft yet, and she won't beat the Ender Dragon. Use her in single-player or on your own server, because most public servers ban automated play.
-
-### Stream mode (TikTok LIVE + OBS)
-
-1. Double-click **`stream_setup.bat`**. It installs OBS if needed and creates the **Capri Live** scene (landscape 1920x1080) and a vertical version: Capri top-left, chat top-right, game in the middle, her replies in a black bar at the bottom.
-2. In OBS, pick the **Capri Live** scene and set your game capture to the Minecraft window.
-3. Go live on TikTok (with TikTok LIVE Studio, or OBS with a stream key if you have one).
-4. Say **"go live on tiktok as @yourname"**. She connects to your chat, answers viewers and runs votes: `!wood` `!diamonds` `!explore` `!fight` `!build`.
-5. To rehearse without going live: say "start stream mode" and open `http://127.0.0.1:7777/stream.html?test=1`.
-
-Full walkthrough: [STREAM_GUIDE.md](STREAM_GUIDE.md). Viewers can only trigger the safe Minecraft actions above, never PC commands.
 
 ### Valorant, League and Roblox
 
@@ -365,7 +354,7 @@ Run the tests with `python tests/test_mc_vision.py` (or `python -m pytest tests`
 - **A small local brain.** The default `llama3.2:3b` is fast but not as clever as big cloud AIs: she can misunderstand unusual requests. Add a cloud key in **API KEYS** for a smarter brain.
 - **Speed depends on your PC.** Without a GPU, replies and essays take longer. The first reply after starting is the slowest.
 - **Commands work best in English.** Other languages go through the AI brain, which is slower and less exact.
-- **Unofficial services can break.** SpotAPI (Spotify) isn't an official API; when those sites change, auto-play or stream chat can stop working until they're updated.
+- **Unofficial services can break.** SpotAPI (Spotify) isn't an official API; when those sites change, auto-play can stop working until they're updated.
 - **She clicks what she sees.** Pressing PLAY in the Riot Client and the Minecraft autopilot read the screen. They need the window visible and can fail if a launcher changes its layout or shows a pop-up (log in, update, Vanguard restart).
 - **Minecraft autopilot is basic.** She plays by eye, is slower and clumsier than a person, doesn't craft and won't beat the game. Single-player or your own server only.
 - **Roblox** needs the Roblox Player installed and signed in. **Google Docs** needs you signed in to Google in your default browser.
@@ -383,7 +372,7 @@ Run the tests with `python tests/test_mc_vision.py` (or `python -m pytest tests`
 - **Voices:** only clone voices you have permission to use. (Brittany Lauda does NOT give permission to clone their voice SO DONT!!)
 - **Power commands:** "power off" and "reset my PC" really shut down or restart Windows after the flatline animation. Save your work first. "show the flatline screen" only shows it.
 - **Sensitive info on screen:** Capri can see your screen when you ask her to ("look at my screen"), and she records the last 30 seconds in memory for clips. Close anything private (bank pages, passwords, private messages) before saving a clip.
-- - **Don't type or say sensitive info:** never give Capri passwords, bank or card details, passport or ID numbers, or anything else private. What you send her can end up in her log, her memory and on your clipboard, and if you use a cloud brain it's sent to that company. She'll never need any of it to do her job.
+- **Don't type or say sensitive info:** never give Capri passwords, bank or card details, passport or ID numbers, or anything else private. What you send her can end up in her log, her memory and on your clipboard, and if you use a cloud brain it's sent to that company. She'll never need any of it to do her job.
 - **Never show your keys:** don't screenshot, stream or screen-share the API KEYS menu, `providers.json`, `voice_api.json` or your Spotify cookie. The menu only shows hints like `gsk...9f2a`, but the files hold the full keys. If a key ever leaks, delete it on that service's website straight away and make a new one.
 - **Logs and bug reports:** `capri_log.txt`, `capri_crash.txt` and `capri_memory.json` can contain things you said to her, file names and what's on your PC. Read them before posting them anywhere, and remove anything personal.
 - **Memory:** she remembers things you tell her in `capri_memory.json` on your PC only. Say "forget …" to remove something, or delete the file to wipe her memory.
