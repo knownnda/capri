@@ -183,7 +183,7 @@ The speech model (~500 MB) downloads automatically the first time she starts.
 | "show the flatline screen" · "power off my PC" · "reset my PC" | flatline sequence (show only / shut down / restart) |
 | "speak French" · "use groq" | change language / brain |
 
-More ideas and a demo script: [SHOWCASE.md](SHOWCASE.md). Everything in depth: [docs/GUIDE.md](docs/GUIDE.md).
+Everything in depth: [docs/GUIDE.md](docs/GUIDE.md).
 
 ---
 
