@@ -346,7 +346,6 @@ server.py            the app: UI server, brain, voice, wake word, tools, windows
 modes.py             music / research / homework / gaming / watching modes, Riot/Steam/Epic launching
 music.py             smart music requests            spotapi_play.py   Spotify via SpotAPI
 autoplay.py          Minecraft commands              mc_vision.py      the no-mod vision autopilot (+ screen OCR helpers)
-stream_live.py       TikTok stream mode              stream_setup.py   OBS scene builder
 i18n.py              languages                       extras.py         memory, files, timers, research
 clipper.py           30-second clip buffer           clip_*_worker.py  crash-safe screen + sound capture helpers
 providers.py         cloud AI providers              launcher.py       auto-restart + safe mode
@@ -379,10 +378,19 @@ Run the tests with `python tests/test_mc_vision.py` (or `python -m pytest tests`
 
 - **Local by default:** with Ollama, your chats, voice and screen never leave your PC. Using a cloud provider sends your messages to that provider.
 - **Secrets are git-ignored:** `spotapi_session.json` (your Spotify cookie), `spotify.json`, `.spotify_cache`, `providers.json` and `voice_api.json` (API keys) and `.env`. Never commit them, and never post them in an issue.
-- **Unofficial APIs:** SpotAPI (Spotify's private web API) and TikTokLive are unofficial and may break, or may go against those services' terms. Use them on your own accounts at your own risk.
+- **Unofficial APIs:** SpotAPI (Spotify's private web API) is unofficial and may break, or may go against those services' terms. Use them on your own accounts at your own risk.
 - **Automation:** keyboard and mouse automation runs only on your machine. The Minecraft autopilot only acts while Minecraft is the active window, and F8 always stops it. Don't use automation in online games where it's against the rules.
-- **Voices:** only clone voices you have permission to use. (Brittany Lauda does NOT give permission to clone their voice SO DONT!!) 
+- **Voices:** only clone voices you have permission to use. (Brittany Lauda does NOT give permission to clone their voice SO DONT!!)
 - **Power commands:** "power off" and "reset my PC" really shut down or restart Windows after the flatline animation. Save your work first. "show the flatline screen" only shows it.
+- **Sensitive info on screen:** Capri can see your screen when you ask her to ("look at my screen"), and she records the last 30 seconds in memory for clips. Close anything private (bank pages, passwords, private messages) before saving a clip.
+- - **Don't type or say sensitive info:** never give Capri passwords, bank or card details, passport or ID numbers, or anything else private. What you send her can end up in her log, her memory and on your clipboard, and if you use a cloud brain it's sent to that company. She'll never need any of it to do her job.
+- **Never show your keys:** don't screenshot, stream or screen-share the API KEYS menu, `providers.json`, `voice_api.json` or your Spotify cookie. The menu only shows hints like `gsk...9f2a`, but the files hold the full keys. If a key ever leaks, delete it on that service's website straight away and make a new one.
+- **Logs and bug reports:** `capri_log.txt`, `capri_crash.txt` and `capri_memory.json` can contain things you said to her, file names and what's on your PC. Read them before posting them anywhere, and remove anything personal.
+- **Memory:** she remembers things you tell her in `capri_memory.json` on your PC only. Say "forget …" to remove something, or delete the file to wipe her memory.
+- **Microphone:** the wake word is processed on your PC, and nothing is recorded or uploaded. Turn the mic off any time: right-click > SYSTEM > MICROPHONE: OFF.
+- **She can be wrong:** her answers, research and homework come from an AI and can contain mistakes. Check important facts yourself.
+- **Files:** she can create and edit files, but only inside your user folder, and she always makes a backup first in `capri_backups/`. Say "undo that" to reverse an edit.
+- **Spending money:** cloud brains and API voices (OpenAI, Claude, ElevenLabs…) charge for each message. Set a spending limit on their websites if you add a key.
 
 ---
 
